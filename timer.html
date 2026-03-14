@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Таймер запекания — Милый уголок</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #fdf6ee;
+    --blush: #f2d5c4;
+    --rose: #d4836a;
+    --warm: #8b5e52;
+    --deep: #4a2d26;
+    --gold: #c9a96e;
+    --text: #3d2419;
+    --light-text: #7a5548;
+    --orange: #e07030;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--cream); color: var(--text); font-family: 'Nunito', sans-serif; min-height: 100vh; }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, #7a3d00, #c06010);
+    padding: 32px 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '🔥';
+    position: absolute;
+    font-size: 12rem;
+    opacity: 0.06;
+    right: -2rem;
+    top: -2rem;
+  }
+  .header-content { position: relative; z-index: 1; }
+  .header-back { display: inline-flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.6); text-decoration: none; font-size: 0.82rem; margin-bottom: 16px; transition: color 0.2s; }
+  .header-back:hover { color: var(--blush); }
+  .header h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 5vw, 2.8rem); color: white; line-height: 1.2; }
+  .header h1 em { color: #ffd080; font-style: italic; }
+  .header p { color: rgba(255,255,255,0.65); font-size: 0.9rem; margin-top: 10px; font-weight: 300; }
+
+  .main { max-width: 860px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  /* BRAND SELECTOR */
+  .card { background: white; border-radius: 20px; padding: 32px; border: 1px solid var(--blush); box-shadow: 0 2px 16px rgba(212,131,106,0.07); margin-bottom: 20px; }
+  .card-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--deep); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+
+  .brand-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+  .brand-btn {
+    padding: 14px 12px;
+    border: 2px solid var(--blush);
+    border-radius: 14px;
+    background: white;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.25s;
+    font-family: 'Nunito', sans-serif;
+  }
+  .brand-btn:hover { border-color: var(--rose); background: #fff5f2; }
+  .brand-btn.active { border-color: var(--rose); background: var(--blush); }
+  .brand-name { font-size: 0.88rem; font-weight: 700; color: var(--deep); margin-top: 6px; }
+  .brand-temp { font-size: 0.72rem; color: var(--light-text); margin-top: 2px; }
+  .brand-icon { font-size: 1.5rem; }
+
+  /* THICKNESS SLIDER */
+  .thickness-section { margin-top: 8px; }
+  .thickness-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .thickness-label { font-size: 0.78rem; font-weight: 700; color: var(--light-text); letter-spacing: 0.05em; text-transform: uppercase; }
+  .thickness-value { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--orange); font-weight: 600; }
+
+  input[type="range"] { width: 100%; height: 8px; border-radius: 4px; background: var(--blush); outline: none; cursor: pointer; -webkit-appearance: none; }
+  input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; border-radius: 50%; background: var(--orange); box-shadow: 0 2px 8px rgba(224,112,48,0.4); cursor: pointer; transition: transform 0.15s; }
+  input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+  .thickness-marks { display: flex; justify-content: space-between; margin-top: 8px; }
+  .thickness-mark { font-size: 0.7rem; color: var(--light-text); }
+
+  .thickness-presets { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .preset-btn { padding: 6px 14px; border: 1px solid var(--blush); border-radius: 20px; font-size: 0.75rem; cursor: pointer; color: var(--warm); background: white; transition: all 0.2s; font-family: 'Nunito', sans-serif; }
+  .preset-btn:hover { background: var(--blush); }
+
+  /* RESULT */
+  .result-card {
+    background: linear-gradient(135deg, #7a3d00, #c06010);
+    border-radius: 20px;
+    padding: 36px 32px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+  }
+  .result-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Ccircle cx='20' cy='20' r='1' fill='white' opacity='0.05'/%3E%3C/svg%3E");
+  }
+  .result-inner { position: relative; z-index: 1; }
+  .result-title { font-family: 'Playfair Display', serif; font-size: 1.3rem; margin-bottom: 24px; }
+
+  .result-main { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .result-item { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); border-radius: 14px; padding: 20px; text-align: center; }
+  .result-item.big { background: #ffd080; }
+  .result-item-label { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.65); margin-bottom: 8px; }
+  .result-item.big .result-item-label { color: rgba(74,45,38,0.65); }
+  .result-item-value { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 600; line-height: 1; }
+  .result-item.big .result-item-value { color: var(--deep); }
+  .result-item-unit { font-size: 0.85rem; opacity: 0.7; margin-top: 4px; }
+  .result-item.big .result-item-unit { color: var(--deep); opacity: 0.6; }
+
+  .result-tips { display: flex; flex-direction: column; gap: 10px; }
+  .result-tip { display: flex; gap: 10px; font-size: 0.83rem; color: rgba(255,255,255,0.85); line-height: 1.5; }
+  .result-tip-icon { flex-shrink: 0; font-size: 1rem; }
+
+  /* TIMER */
+  .timer-section { margin-top: 24px; text-align: center; }
+  .timer-btn {
+    padding: 16px 40px;
+    background: white;
+    color: var(--deep);
+    border: none;
+    border-radius: 50px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    transition: all 0.3s;
+  }
+  .timer-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.25); }
+  .timer-btn.running { background: var(--deep); color: white; }
+
+  .timer-display { margin-top: 20px; }
+  .timer-circle-wrap { display: flex; justify-content: center; margin: 16px 0; }
+  .timer-circle { position: relative; width: 180px; height: 180px; }
+  .timer-svg { transform: rotate(-90deg); }
+  .timer-track { fill: none; stroke: rgba(255,255,255,0.15); stroke-width: 8; }
+  .timer-progress { fill: none; stroke: #ffd080; stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
+  .timer-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; }
+  .timer-countdown { font-family: 'Playfair Display', serif; font-size: 2.2rem; color: white; font-weight: 600; line-height: 1; }
+  .timer-label { font-size: 0.72rem; color: rgba(255,255,255,0.6); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 4px; }
+
+  .timer-done { display: none; font-size: 1.1rem; color: #ffd080; font-weight: 700; margin-top: 12px; animation: pulse 1s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+  /* SAFETY BOX */
+  .safety-box { background: #fff8e8; border: 1px solid #f0d080; border-radius: 14px; padding: 18px 20px; margin-top: 20px; display: flex; gap: 12px; }
+  .safety-icon { font-size: 1.3rem; flex-shrink: 0; }
+  .safety-text { font-size: 0.82rem; color: #7a5a00; line-height: 1.7; }
+
+  /* TABLE */
+  .table-card { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  th { background: var(--deep); color: white; padding: 12px 14px; text-align: left; font-weight: 600; font-size: 0.78rem; letter-spacing: 0.05em; }
+  th:first-child { border-radius: 10px 0 0 0; }
+  th:last-child { border-radius: 0 10px 0 0; }
+  td { padding: 12px 14px; border-bottom: 1px solid var(--blush); color: var(--text); }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: #fffaf7; }
+  tr:hover td { background: #fff0ea; }
+  .temp-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+  .temp-110 { background: #fff0d6; color: #8a5000; }
+  .temp-130 { background: #ffe0d0; color: #8a2000; }
+
+  @media(max-width:600px) {
+    .result-main { grid-template-columns: 1fr; }
+    .brand-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ACCORDION */
+  .tips-accordion { display: flex; flex-direction: column; gap: 10px; }
+  .acc-item { border: 1.5px solid var(--blush); border-radius: 14px; overflow: hidden; }
+  .acc-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px; cursor: pointer; background: white;
+    transition: background 0.2s;
+    gap: 12px;
+  }
+  .acc-header:hover { background: #fffaf7; }
+  .acc-header.open { background: var(--blush); }
+  .acc-title { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 0.92rem; color: var(--deep); }
+  .acc-icon { font-size: 1.2rem; flex-shrink: 0; }
+  .acc-arrow { font-size: 0.8rem; color: var(--light-text); transition: transform 0.3s; flex-shrink: 0; }
+  .acc-header.open .acc-arrow { transform: rotate(180deg); }
+  .acc-body { display: none; padding: 0 20px 18px; background: white; }
+  .acc-body.open { display: block; }
+  .acc-body p { font-size: 0.85rem; color: var(--light-text); line-height: 1.75; margin-bottom: 10px; }
+  .acc-body p:last-child { margin-bottom: 0; }
+  .acc-body strong { color: var(--deep); }
+  .acc-body .tip-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.82rem; }
+  .acc-body .tip-table th { background: var(--deep); color: white; padding: 8px 12px; text-align: left; font-weight: 600; }
+  .acc-body .tip-table th:first-child { border-radius: 8px 0 0 0; }
+  .acc-body .tip-table th:last-child { border-radius: 0 8px 0 0; }
+  .acc-body .tip-table td { padding: 8px 12px; border-bottom: 1px solid var(--blush); color: var(--text); }
+  .acc-body .tip-table tr:last-child td { border-bottom: none; }
+  .acc-body .tip-table tr:nth-child(even) td { background: #fffaf7; }
+  .warn-box { background: #fff8e8; border: 1px solid #f0d080; border-radius: 10px; padding: 12px 14px; margin-top: 10px; font-size: 0.82rem; color: #7a5a00; line-height: 1.6; }
+  .ok-box { background: #e8f5ee; border: 1px solid #b8ddc8; border-radius: 10px; padding: 12px 14px; margin-top: 10px; font-size: 0.82rem; color: #2d5e3a; line-height: 1.6; }
+
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-content">
+    <a href="index.html" class="header-back">← Вернуться на сайт</a>
+    <h1>Таймер <em>запекания</em></h1>
+    <p>Точное время и температура для вашей марки глины 🔥</p>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- BRAND -->
+  <div class="card">
+    <div class="card-title">🧱 Выберите марку глины</div>
+    <div class="brand-grid" id="brandGrid"></div>
+  </div>
+
+  <!-- THICKNESS -->
+  <div class="card">
+    <div class="card-title">📏 Толщина изделия</div>
+    <div class="thickness-section">
+      <div class="thickness-header">
+        <div class="thickness-label">Укажите толщину</div>
+        <div class="thickness-value" id="thicknessDisplay">3 мм</div>
+      </div>
+      <input type="range" id="thicknessSlider" min="1" max="15" value="3" step="0.5" oninput="updateThickness()">
+      <div class="thickness-marks">
+        <span class="thickness-mark">1 мм</span>
+        <span class="thickness-mark">4 мм</span>
+        <span class="thickness-mark">8 мм</span>
+        <span class="thickness-mark">12 мм</span>
+        <span class="thickness-mark">15 мм</span>
+      </div>
+      <div class="thickness-presets">
+        <button class="preset-btn" onclick="setThickness(1)">🌸 Лепесток (1мм)</button>
+        <button class="preset-btn" onclick="setThickness(2)">💍 Серьга (2мм)</button>
+        <button class="preset-btn" onclick="setThickness(3)">📿 Подвеска (3мм)</button>
+        <button class="preset-btn" onclick="setThickness(6)">🎃 Брошь (6мм)</button>
+        <button class="preset-btn" onclick="setThickness(10)">🪨 Фигурка (10мм)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="result-card">
+    <div class="result-inner">
+      <div class="result-title">🎯 Режим запекания</div>
+      <div class="result-main">
+        <div class="result-item big">
+          <div class="result-item-label">Температура</div>
+          <div class="result-item-value" id="resTemp">—</div>
+          <div class="result-item-unit">°C</div>
+        </div>
+        <div class="result-item big">
+          <div class="result-item-label">Время</div>
+          <div class="result-item-value" id="resTime">—</div>
+          <div class="result-item-unit" id="resTimeUnit">минут</div>
+        </div>
+      </div>
+
+      <div class="result-tips" id="resTips"></div>
+
+      <!-- TIMER -->
+      <div class="timer-section">
+        <button class="timer-btn" id="timerBtn" onclick="toggleTimer()">▶ Запустить таймер</button>
+        <div class="timer-display" id="timerDisplay" style="display:none">
+          <div class="timer-circle-wrap">
+            <div class="timer-circle">
+              <svg class="timer-svg" width="180" height="180" viewBox="0 0 180 180">
+                <circle class="timer-track" cx="90" cy="90" r="80"/>
+                <circle class="timer-progress" id="timerProgress" cx="90" cy="90" r="80"
+                  stroke-dasharray="502" stroke-dashoffset="0"/>
+              </svg>
+              <div class="timer-text">
+                <div class="timer-countdown" id="timerCountdown">00:00</div>
+                <div class="timer-label">осталось</div>
+              </div>
+            </div>
+          </div>
+          <div class="timer-done" id="timerDone">🔔 Готово! Выключите духовку!</div>
+        </div>
+      </div>
+
+      <div class="safety-box" style="margin-top:24px; background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.2);">
+        <span class="safety-icon">⚠️</span>
+        <div style="font-size:0.82rem; color:rgba(255,255,255,0.8); line-height:1.7;">
+          Используйте термометр для духовки — встроенные датчики часто врут на 10-20°. После запекания оставьте изделие остывать <strong>в закрытой духовке</strong> — резкое охлаждение делает глину хрупкой. Проветривайте кухню во время запекания.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="card table-card" style="margin-top:20px;">
+    <div class="card-title">📋 Таблица режимов запекания</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Марка</th>
+          <th>Серия</th>
+          <th>Температура</th>
+          <th>1-2 мм</th>
+          <th>3-5 мм</th>
+          <th>6-10 мм</th>
+          <th>10+ мм</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Cernit</strong></td>
+          <td>N°1 (основная)</td>
+          <td><span class="temp-badge temp-130">130°C</span></td>
+          <td>15 мин</td>
+          <td>25 мин</td>
+          <td>30 мин</td>
+          <td>35 мин</td>
+        </tr>
+        <tr>
+          <td><strong>Cernit</strong></td>
+          <td>Translucent</td>
+          <td><span class="temp-badge temp-130">130°C</span></td>
+          <td>15 мин</td>
+          <td>25 мин</td>
+          <td>30 мин</td>
+          <td>35 мин</td>
+        </tr>
+        <tr>
+          <td><strong>Fimo</strong></td>
+          <td>Soft</td>
+          <td><span class="temp-badge temp-110">110°C</span></td>
+          <td>15 мин</td>
+          <td>20 мин</td>
+          <td>30 мин</td>
+          <td>35 мин</td>
+        </tr>
+        <tr>
+          <td><strong>Fimo</strong></td>
+          <td>Effect</td>
+          <td><span class="temp-badge temp-110">110°C</span></td>
+          <td>15 мин</td>
+          <td>20 мин</td>
+          <td>30 мин</td>
+          <td>35 мин</td>
+        </tr>
+        <tr>
+          <td><strong>Fimo</strong></td>
+          <td>Effect Translucent</td>
+          <td><span class="temp-badge temp-110">110°C</span></td>
+          <td>15 мин</td>
+          <td>20 мин</td>
+          <td>30 мин</td>
+          <td>35 мин</td>
+        </tr>
+        <tr>
+          <td><strong>Artifact</strong></td>
+          <td>Classic</td>
+          <td><span class="temp-badge temp-130">130°C</span></td>
+          <td>15 мин</td>
+          <td>20 мин</td>
+          <td>30 мин</td>
+          <td>35 мин</td>
+        </tr>
+        <tr>
+          <td><strong>Artifact</strong></td>
+          <td>Chiffon</td>
+          <td><span class="temp-badge temp-130">130°C</span></td>
+          <td>15 мин</td>
+          <td>20 мин</td>
+          <td>30 мин</td>
+          <td>35 мин</td>
+        </tr>
+        <tr>
+          <td><strong>Fimo</strong></td>
+          <td>Professional</td>
+          <td><span class="temp-badge temp-110">110°C</span></td>
+          <td>15 мин</td>
+          <td>20 мин</td>
+          <td>30 мин</td>
+          <td>35 мин</td>
+        </tr>
+        <tr>
+          <td><strong>Fimo</strong></td>
+          <td>Leather-effect ⚠️</td>
+          <td><span class="temp-badge temp-130">130°C</span></td>
+          <td>15 мин</td>
+          <td>20 мин</td>
+          <td>30 мин</td>
+          <td>35 мин</td>
+        </tr>
+        <tr>
+          <td><strong>Cernit</strong></td>
+          <td>Metallic</td>
+          <td><span class="temp-badge temp-130">130°C</span></td>
+          <td>15 мин</td>
+          <td>20 мин</td>
+          <td>30 мин</td>
+          <td>35 мин</td>
+        </tr>
+        <tr>
+          <td><strong>Cernit</strong></td>
+          <td>Glamour</td>
+          <td><span class="temp-badge temp-130">130°C</span></td>
+          <td>15 мин</td>
+          <td>20 мин</td>
+          <td>30 мин</td>
+          <td>35 мин</td>
+        </tr>
+        <tr>
+          <td><strong>Cernit</strong></td>
+          <td>Shiny</td>
+          <td><span class="temp-badge temp-130">130°C</span></td>
+          <td>15 мин</td>
+          <td>20 мин</td>
+          <td>30 мин</td>
+          <td>35 мин</td>
+        </tr>
+        <tr>
+          <td><strong>Cernit</strong></td>
+          <td>Opaline</td>
+          <td><span class="temp-badge temp-130">130°C</span></td>
+          <td>15 мин</td>
+          <td>20 мин</td>
+          <td>30 мин</td>
+          <td>35 мин</td>
+        </tr>
+        <tr>
+          <td><strong>Cernit</strong></td>
+          <td>Nature</td>
+          <td><span class="temp-badge temp-130">130°C</span></td>
+          <td>15 мин</td>
+          <td>20 мин</td>
+          <td>30 мин</td>
+          <td>35 мин</td>
+        </tr>
+        <tr>
+          <td><strong>Cernit</strong></td>
+          <td>Neon Light</td>
+          <td><span class="temp-badge temp-130">130°C</span></td>
+          <td>15 мин</td>
+          <td>20 мин</td>
+          <td>30 мин</td>
+          <td>35 мин</td>
+        </tr>
+        <tr>
+          <td><strong>Cernit</strong></td>
+          <td>Doll Collection</td>
+          <td><span class="temp-badge temp-130">130°C</span></td>
+          <td>15 мин</td>
+          <td>20 мин</td>
+          <td>30 мин</td>
+          <td>35 мин</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- TIPS -->
+  <div class="card" style="margin-top:20px;">
+    <div class="card-title">💡 Полезные советы по запеканию</div>
+    <div class="tips-accordion" id="tipsAccordion"></div>
+  </div>
+
+  <div style="text-align:center; margin-top:40px; font-size:0.82rem; color:var(--light-text);">
+    Создано для мастеров проекта <a href="index.html" style="color:var(--rose); text-decoration:none;">Милый уголок</a> 🌸<br>
+    <span style="font-size:0.75rem; opacity:0.7;">Данные основаны на официальных рекомендациях производителей</span><br><span style="font-size:0.75rem; opacity:0.6;">⚠️ Fimo Leather-effect: особый режим — 130°C, остаётся гибким после запекания · Fimo Air/Air Light — самозатвердевающая, духовка не нужна</span>
+  </div>
+
+</div>
+
+<script>
+  // ── BRANDS DATA ──
+  const BRANDS = [
+    { id: 'cernit', icon: '🌿', name: 'Cernit N°1', temp: 130, series: 'Основная серия' },
+    { id: 'cernit_t', icon: '💎', name: 'Cernit Translucent', temp: 130, series: 'Прозрачная' },
+    { id: 'fimo_s', icon: '🟠', name: 'Fimo Soft', temp: 110, series: 'Мягкая серия' },
+    { id: 'fimo_e', icon: '✨', name: 'Fimo Effect', temp: 110, series: 'Эффекты' },
+    { id: 'fimo_t', icon: '🔮', name: 'Fimo Translucent', temp: 110, series: 'Прозрачная' },
+    { id: 'artifact', icon: '🎨', name: 'Artifact Classic', temp: 130, series: 'Основная серия' },
+    { id: 'artifact_c', icon: '🩷', name: 'Artifact Chiffon', temp: 130, series: 'Шифоновая' },
+    { id: 'fimo_p', icon: '⭐', name: 'Fimo Professional', temp: 110, series: 'Профессиональная' },
+    { id: 'fimo_l', icon: '👜', name: 'Fimo Leather-effect', temp: 130, series: 'Эффект кожи' },
+    { id: 'cernit_ef', icon: '✨', name: 'Cernit Metallic', temp: 130, series: 'Металлик' },
+    { id: 'cernit_gl', icon: '🌟', name: 'Cernit Glamour', temp: 130, series: 'Перламутр / глиттер' },
+    { id: 'cernit_sh', icon: '💫', name: 'Cernit Shiny', temp: 130, series: 'Мика-шифт' },
+    { id: 'cernit_op', icon: '🫧', name: 'Cernit Opaline', temp: 130, series: 'Фарфоровый эффект' },
+    { id: 'cernit_na', icon: '🪨', name: 'Cernit Nature', temp: 130, series: 'Имитация камня' },
+    { id: 'cernit_ne', icon: '🌈', name: 'Cernit Neon Light', temp: 130, series: 'Неоновые цвета' },
+    { id: 'cernit_do', icon: '🪆', name: 'Cernit Doll Collection', temp: 130, series: 'Для кукол' },
+  ];
+
+  let selectedBrand = BRANDS[0];
+  let thickness = 3;
+  let timerInterval = null;
+  let timerRemaining = 0;
+  let timerTotal = 0;
+  let timerRunning = false;
+
+  // ── CALC TIME ──
+  function calcTime(mm, temp) {
+    let base;
+    if (mm <= 2) base = 15;
+    else if (mm <= 5) base = 20 + Math.round((mm - 2) / 3 * 10);
+    else if (mm <= 10) base = 30;
+    else base = 35;
+    return base;
+  }
+
+  function calcTips(brand, mm, time) {
+    const tips = [];
+    if (mm <= 2) tips.push({ icon: '🌸', text: 'Тонкое изделие — следите чтобы не подгорело. Лучше поставить в холодную духовку и нагреть вместе с ней.' });
+    if (mm >= 8) tips.push({ icon: '🕐', text: 'Толстое изделие: можно запекать дольше без риска — при правильной температуре передержка только улучшает прочность.' });
+    if (brand.id === 'fimo_l') {
+      tips.push({ icon: '👜', text: 'Fimo Leather-effect после запекания остаётся гибким — это нормально! Тонкие пластины можно резать ножницами, сшивать, плести. Не перепекайте — потеряет гибкость.' });
+    }
+    if (brand.id === 'cernit_op') {
+      tips.push({ icon: '🫧', text: 'Cernit Opaline после запекания даёт фарфоровый полупрозрачный эффект — цвет становится насыщеннее. Учитывайте это при выборе оттенка.' });
+    }
+    if (brand.id === 'cernit_t' || brand.id === 'fimo_t' || brand.id === 'artifact_c') {
+      tips.push({ icon: '💎', text: 'Прозрачная/шифоновая глина: для лучшей прозрачности запекайте на металлической фольге или стекле. Тонкие пласты дают максимальный эффект прозрачности.' });
+    }
+    tips.push({ icon: '🌡️', text: `Используйте термометр для духовки! Встроенные датчики часто показывают на 10-20° меньше реального. Цель: точно ${brand.temp}°C.` });
+    tips.push({ icon: '❄️', text: 'После запекания оставьте остывать в закрытой духовке 10-15 минут — резкое охлаждение делает изделие хрупким.' });
+    if (tips.length > 3) tips.splice(3);
+    return tips;
+  }
+
+  // ── RENDER ──
+  function renderBrands() {
+    const grid = document.getElementById('brandGrid');
+    grid.innerHTML = '';
+    BRANDS.forEach(b => {
+      const btn = document.createElement('button');
+      btn.className = 'brand-btn' + (b.id === selectedBrand.id ? ' active' : '');
+      btn.innerHTML = `<div class="brand-icon">${b.icon}</div><div class="brand-name">${b.name}</div><div class="brand-temp">${b.temp}°C · ${b.series}</div>`;
+      btn.onclick = () => { selectedBrand = b; renderBrands(); updateResult(); };
+      grid.appendChild(btn);
+    });
+  }
+
+  function updateResult() {
+    const time = calcTime(thickness, selectedBrand.temp);
+    document.getElementById('resTemp').textContent = selectedBrand.temp;
+    document.getElementById('resTime').textContent = time;
+    document.getElementById('resTimeUnit').textContent = time === 1 ? 'минута' : (time < 5 ? 'минуты' : 'минут');
+
+    const tips = calcTips(selectedBrand, thickness, time);
+    document.getElementById('resTips').innerHTML = tips.map(t =>
+      `<div class="result-tip"><span class="result-tip-icon">${t.icon}</span><span>${t.text}</span></div>`
+    ).join('');
+
+    // Reset timer
+    if (timerRunning) stopTimer();
+    timerTotal = time * 60;
+    timerRemaining = timerTotal;
+    document.getElementById('timerDisplay').style.display = 'none';
+    document.getElementById('timerBtn').textContent = '▶ Запустить таймер';
+    document.getElementById('timerBtn').className = 'timer-btn';
+    document.getElementById('timerDone').style.display = 'none';
+  }
+
+  // ── THICKNESS ──
+  function updateThickness() {
+    thickness = +document.getElementById('thicknessSlider').value;
+    document.getElementById('thicknessDisplay').textContent = thickness + ' мм';
+    updateResult();
+  }
+
+  function setThickness(val) {
+    thickness = val;
+    document.getElementById('thicknessSlider').value = val;
+    document.getElementById('thicknessDisplay').textContent = val + ' мм';
+    updateResult();
+  }
+
+  // ── TIMER ──
+  function toggleTimer() {
+    if (timerRunning) {
+      stopTimer();
+    } else {
+      startTimer();
+    }
+  }
+
+  function startTimer() {
+    const time = calcTime(thickness, selectedBrand.temp);
+    timerTotal = time * 60;
+    if (!timerRunning) timerRemaining = timerTotal;
+    timerRunning = true;
+    document.getElementById('timerDisplay').style.display = 'block';
+    document.getElementById('timerBtn').textContent = '⏸ Пауза';
+    document.getElementById('timerBtn').className = 'timer-btn running';
+    document.getElementById('timerDone').style.display = 'none';
+    timerInterval = setInterval(tick, 1000);
+    tick();
+  }
+
+  function stopTimer() {
+    timerRunning = false;
+    clearInterval(timerInterval);
+    document.getElementById('timerBtn').textContent = '▶ Продолжить';
+    document.getElementById('timerBtn').className = 'timer-btn';
+  }
+
+  function tick() {
+    if (timerRemaining <= 0) {
+      clearInterval(timerInterval);
+      timerRunning = false;
+      document.getElementById('timerCountdown').textContent = '00:00';
+      document.getElementById('timerProgress').style.strokeDashoffset = '502';
+      document.getElementById('timerBtn').textContent = '↺ Заново';
+      document.getElementById('timerBtn').className = 'timer-btn';
+      document.getElementById('timerDone').style.display = 'block';
+      // Try notification
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('🔔 Милый уголок', { body: 'Время запекания вышло! Выключите духовку.' });
+      }
+      return;
+    }
+
+    const min = Math.floor(timerRemaining / 60);
+    const sec = timerRemaining % 60;
+    document.getElementById('timerCountdown').textContent =
+      String(min).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
+
+    const progress = 502 * (1 - timerRemaining / timerTotal);
+    document.getElementById('timerProgress').style.strokeDashoffset = 502 - progress;
+
+    timerRemaining--;
+  }
+
+  // ── INIT ──
+  renderBrands();
+  updateResult();
+
+  // Request notification permission
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+
+  const TIPS = [
+    {
+      icon: '🔄',
+      title: 'Поэтапное и повторное запекание',
+      body: `
+        <p>Полимерную глину можно запекать несколько раз — это нормальная практика. Главное правило: <strong>суммарное время всех запеканий не должно превышать 40 минут.</strong></p>
+        <table class="tip-table">
+          <thead><tr><th>Этап</th><th>Что делаем</th><th>Время</th></tr></thead>
+          <tbody>
+            <tr><td>1-й</td><td>Запекаем основу или первые детали</td><td><strong>10-15 мин</strong></td></tr>
+            <tr><td>2-й и далее</td><td>Добавляем детали, допекаем</td><td><strong>до полного времени</strong></td></tr>
+            <tr><td>Итого</td><td>Суммарное время всех запеканий</td><td><strong>не более 40 мин</strong></td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top:10px;"><strong>Когда нужно повторное запекание:</strong> добавляете новую деталь к готовому изделию, приклеиваете элементы жидкой глиной, исправляете форму.</p>
+        <div class="ok-box">✅ Остужайте изделие полностью между запеканиями — это предотвращает деформацию.</div>
+        <div class="warn-box">⚠️ Превышение 40 минут суммарно может привести к потемнению или хрупкости изделия.</div>
+      `
+    },
+    {
+      icon: '🎨',
+      title: 'Разные марки вместе — при какой температуре запекать',
+      body: `
+        <p>Смешали Cernit и Fimo в одном изделии? Или делаете украшение из двух разных глин? Правило простое:</p>
+        <p><strong>Запекайте при температуре той марки, у которой температура ниже.</strong></p>
+        <table class="tip-table">
+          <thead><tr><th>Комбинация</th><th>Температура</th><th>Почему</th></tr></thead>
+          <tbody>
+            <tr><td>Fimo (110°) + Cernit (130°)</td><td><strong>110°C</strong></td><td>Fimo может потемнеть при 130°</td></tr>
+            <tr><td>Fimo Soft + Fimo Effect</td><td><strong>110°C</strong></td><td>Одинаковые, без проблем</td></tr>
+            <tr><td>Cernit N°1 + Artifact</td><td><strong>130°C</strong></td><td>Обе допускают 130°</td></tr>
+            <tr><td>Fimo + Artifact</td><td><strong>110°C</strong></td><td>Fimo требует 110°</td></tr>
+          </tbody>
+        </table>
+        <div class="warn-box">⚠️ Fimo Leather-effect при смешивании с другими марками может потерять гибкость. Используйте отдельно.</div>
+      `
+    },
+    {
+      icon: '🔩',
+      title: 'Фурнитура при запекании — что можно, что нельзя',
+      body: `
+        <p>Хорошая новость: <strong>металлическую фурнитуру можно запекать прямо в глине</strong> — штифты, швензы, кольца, основы для брошей. Металл выдерживает температуры до 200°C без последствий.</p>
+        <p><strong>Что можно запекать вместе с глиной:</strong></p>
+        <p>✅ Металлические штифты и пины · ✅ Швензы и основы серёг · ✅ Кольца и соединительные элементы · ✅ Основы для брошей · ✅ Проволока (медь, латунь, сталь)</p>
+        <p><strong>Что нельзя:</strong></p>
+        <p>❌ Пластиковые элементы — расплавятся · ❌ Стразы с клеевой основой — клей расплавится · ❌ Жемчуг — может потрескаться · ❌ Тонкие нити и шнуры — могут обгореть</p>
+        <div class="ok-box">✅ Стразы без клея (в оправе) запекать можно — они стеклянные и выдерживают температуру.</div>
+      `
+    },
+    {
+      icon: '🔍',
+      title: 'Как понять что запекание прошло правильно',
+      body: `
+        <p>После остывания (не сразу из духовки!) правильно запечённое изделие должно:</p>
+        <p>✅ Быть твёрдым на ощупь · ✅ При лёгком сгибании тонкого края — гнуться, но не ломаться · ✅ Не крошиться · ✅ Сохранить цвет (не потемнеть)</p>
+        <p><strong>Признаки проблем:</strong></p>
+        <table class="tip-table">
+          <thead><tr><th>Что случилось</th><th>Причина</th><th>Решение</th></tr></thead>
+          <tbody>
+            <tr><td>Мягкое после остывания</td><td>Недопечено или низкая температура</td><td>Допеките 10-15 мин</td></tr>
+            <tr><td>Хрупкое, крошится</td><td>Недопечено или перепечено</td><td>Проверьте термометр</td></tr>
+            <tr><td>Потемнело, пузыри</td><td>Слишком высокая температура</td><td>Снизьте температуру</td></tr>
+            <tr><td>Поплыло, потеряло форму</td><td>Перегрев или тонкое изделие без опоры</td><td>Подложите опору из фольги</td></tr>
+          </tbody>
+        </table>
+        <div class="ok-box">💡 Совет: всегда делайте тестовый кусочек из новой пачки глины перед основным изделием!</div>
+      `
+    }
+  ];
+
+  const accordion = document.getElementById('tipsAccordion');
+  TIPS.forEach((tip, i) => {
+    const item = document.createElement('div');
+    item.className = 'acc-item';
+    item.innerHTML = `
+      <div class="acc-header" onclick="toggleAcc(${i})">
+        <div class="acc-title"><span class="acc-icon">${tip.icon}</span>${tip.title}</div>
+        <span class="acc-arrow">▼</span>
+      </div>
+      <div class="acc-body" id="acc-body-${i}">${tip.body}</div>
+    `;
+    accordion.appendChild(item);
+  });
+
+  function toggleAcc(i) {
+    const header = document.querySelectorAll('.acc-header')[i];
+    const body = document.getElementById('acc-body-' + i);
+    const isOpen = body.classList.contains('open');
+    // Close all
+    document.querySelectorAll('.acc-header').forEach(h => h.classList.remove('open'));
+    document.querySelectorAll('.acc-body').forEach(b => b.classList.remove('open'));
+    // Open clicked if was closed
+    if (!isOpen) {
+      header.classList.add('open');
+      body.classList.add('open');
+    }
+  }
+
+</script>
+</body>
+</html>
