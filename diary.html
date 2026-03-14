@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Дневник мастера — Милый уголок</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #fdf6ee;
+    --blush: #f2d5c4;
+    --rose: #d4836a;
+    --warm: #8b5e52;
+    --deep: #4a2d26;
+    --gold: #c9a96e;
+    --text: #3d2419;
+    --light-text: #7a5548;
+    --green: #4a9e6a;
+    --sage: #a8b89a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--cream); color: var(--text); font-family: 'Nunito', sans-serif; min-height: 100vh; }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, var(--deep), #7a3d35);
+    padding: 28px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '📖';
+    position: absolute;
+    font-size: 10rem;
+    opacity: 0.05;
+    right: -1rem;
+    top: -1rem;
+  }
+  .header-left { position: relative; z-index: 1; }
+  .header h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.4rem, 4vw, 2rem); color: white; }
+  .header h1 em { color: var(--blush); font-style: italic; }
+  .header p { color: rgba(255,255,255,0.6); font-size: 0.82rem; margin-top: 4px; }
+  .header-actions { display: flex; gap: 10px; flex-wrap: wrap; position: relative; z-index: 1; }
+
+  .btn {
+    padding: 10px 20px;
+    border-radius: 50px;
+    border: none;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-primary { background: white; color: var(--deep); }
+  .btn-primary:hover { background: var(--blush); }
+  .btn-outline { background: rgba(255,255,255,0.12); color: white; border: 1px solid rgba(255,255,255,0.25); }
+  .btn-outline:hover { background: rgba(255,255,255,0.2); }
+  .btn-rose { background: linear-gradient(135deg, var(--rose), var(--warm)); color: white; box-shadow: 0 4px 14px rgba(212,131,106,0.35); }
+  .btn-rose:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(212,131,106,0.45); }
+  .btn-sm { padding: 7px 14px; font-size: 0.78rem; }
+  .btn-danger { background: #fff0ee; color: #c0392b; }
+  .btn-danger:hover { background: #ffd6d0; }
+
+  /* STATS */
+  .stats-bar {
+    background: white;
+    border-bottom: 1px solid var(--blush);
+    padding: 16px 24px;
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+    overflow-x: auto;
+  }
+  .stat { text-align: center; min-width: 80px; }
+  .stat-value { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--rose); font-weight: 600; }
+  .stat-label { font-size: 0.7rem; color: var(--light-text); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
+
+  /* MAIN */
+  .main { max-width: 1100px; margin: 0 auto; padding: 32px 24px 80px; }
+
+  /* FILTERS */
+  .filters {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 28px;
+  }
+  .search-wrap { position: relative; flex: 1; min-width: 200px; }
+  .search-wrap input {
+    width: 100%;
+    padding: 11px 16px 11px 40px;
+    border: 1.5px solid var(--blush);
+    border-radius: 50px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.88rem;
+    background: white;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-wrap input:focus { border-color: var(--rose); }
+  .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--light-text); font-size: 0.9rem; }
+  .filter-select {
+    padding: 10px 16px;
+    border: 1.5px solid var(--blush);
+    border-radius: 50px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.85rem;
+    background: white;
+    color: var(--text);
+    outline: none;
+    cursor: pointer;
+  }
+
+  /* GRID */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+
+  /* CARD */
+  .work-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px solid var(--blush);
+    box-shadow: 0 2px 12px rgba(212,131,106,0.07);
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+  .work-card:hover { transform: translateY(-4px); box-shadow: 0 10px 32px rgba(212,131,106,0.14); }
+
+  .card-img {
+    height: 180px;
+    background: linear-gradient(135deg, var(--blush), var(--dusty, #c9a090));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .card-img img { width: 100%; height: 100%; object-fit: cover; }
+  .card-img .no-photo { opacity: 0.4; }
+  .card-status {
+    position: absolute;
+    top: 10px; right: 10px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+  }
+  .status-sold { background: #e8f5ee; color: #2d6e2d; }
+  .status-available { background: #fff3cd; color: #856404; }
+  .status-gift { background: #e8e0f5; color: #5a2d8a; }
+  .status-personal { background: #f0f0f0; color: #555; }
+
+  .card-body { padding: 18px 20px 20px; }
+  .card-title { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: var(--deep); margin-bottom: 6px; }
+  .card-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .card-tag { font-size: 0.7rem; background: var(--cream); border: 1px solid var(--blush); color: var(--light-text); padding: 3px 9px; border-radius: 10px; }
+  .card-numbers { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+  .card-num { background: #fffaf7; border-radius: 10px; padding: 8px 10px; }
+  .card-num-label { font-size: 0.65rem; color: var(--light-text); text-transform: uppercase; letter-spacing: 0.05em; }
+  .card-num-value { font-size: 0.9rem; font-weight: 700; color: var(--deep); margin-top: 2px; }
+  .card-num-value.profit { color: var(--green); }
+  .card-actions { display: flex; gap: 8px; }
+
+  /* EMPTY */
+  .empty {
+    text-align: center;
+    padding: 80px 24px;
+    grid-column: 1 / -1;
+  }
+  .empty-icon { font-size: 4rem; margin-bottom: 16px; opacity: 0.4; }
+  .empty h3 { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--deep); margin-bottom: 8px; }
+  .empty p { color: var(--light-text); font-size: 0.9rem; }
+
+  /* MODAL */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(74,45,38,0.5);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow-y: auto;
+  }
+  .overlay.open { display: flex; }
+
+  .modal {
+    background: white;
+    border-radius: 24px;
+    padding: 36px;
+    width: 100%;
+    max-width: 600px;
+    box-shadow: 0 24px 80px rgba(74,45,38,0.25);
+    position: relative;
+    animation: modalIn 0.3s ease;
+    margin: auto;
+  }
+  @keyframes modalIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  .modal-close { position: absolute; top: 16px; right: 20px; background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--light-text); transition: color 0.2s; }
+  .modal-close:hover { color: var(--rose); }
+  .modal-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--deep); margin-bottom: 24px; }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.full { grid-column: 1 / -1; }
+  .form-label { font-size: 0.75rem; font-weight: 700; color: var(--light-text); text-transform: uppercase; letter-spacing: 0.06em; }
+  .form-input, .form-select, .form-textarea {
+    padding: 11px 14px;
+    border: 1.5px solid var(--blush);
+    border-radius: 12px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.88rem;
+    color: var(--text);
+    background: #fffaf7;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--rose); }
+  .form-textarea { resize: vertical; min-height: 80px; }
+  .form-hint { font-size: 0.7rem; color: var(--light-text); font-weight: 300; }
+
+  /* Photo preview */
+  .photo-preview {
+    width: 100%;
+    height: 140px;
+    border: 2px dashed var(--blush);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    overflow: hidden;
+    position: relative;
+    background: #fffaf7;
+  }
+  .photo-preview:hover { border-color: var(--rose); background: #fff5f2; }
+  .photo-preview img { width: 100%; height: 100%; object-fit: cover; }
+  .photo-preview-text { font-size: 0.8rem; color: var(--light-text); text-align: center; }
+  .photo-preview-icon { font-size: 1.8rem; opacity: 0.4; }
+  .photo-preview input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+  .profit-display {
+    background: linear-gradient(135deg, var(--deep), #7a3d35);
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .profit-label { color: rgba(255,255,255,0.65); font-size: 0.78rem; }
+  .profit-value { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: #ffd080; font-weight: 600; }
+
+  .modal-footer { display: flex; gap: 10px; margin-top: 24px; justify-content: flex-end; }
+
+  /* VIEW MODAL */
+  .view-modal { max-width: 680px; }
+  .view-img {
+    width: 100%;
+    height: 240px;
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, var(--blush), var(--dusty, #c9a090));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 5rem;
+  }
+  .view-img img { width: 100%; height: 100%; object-fit: cover; }
+  .view-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+  .view-item { background: #fffaf7; border-radius: 12px; padding: 12px 14px; }
+  .view-item-label { font-size: 0.65rem; color: var(--light-text); text-transform: uppercase; letter-spacing: 0.05em; }
+  .view-item-value { font-size: 1rem; font-weight: 700; color: var(--deep); margin-top: 4px; }
+  .view-item-value.green { color: var(--green); }
+  .view-section { margin-bottom: 16px; }
+  .view-section-title { font-size: 0.72rem; font-weight: 700; color: var(--light-text); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+  .view-text { font-size: 0.88rem; color: var(--text); line-height: 1.7; }
+
+  /* EXPORT */
+  .mini-mat-row { display:grid; grid-template-columns:1fr 80px 70px 70px 28px; gap:6px; align-items:center; }
+  .mini-mat-row input { padding:8px 10px; border:1.5px solid var(--blush); border-radius:8px; font-family:'Nunito',sans-serif; font-size:0.8rem; background:white; outline:none; width:100%; }
+  .mini-mat-row input:focus { border-color:var(--rose); }
+  .mini-mat-del { background:#fff0ee; border:none; border-radius:6px; color:var(--rose); cursor:pointer; font-size:0.85rem; padding:6px; transition:background 0.2s; }
+  .mini-mat-del:hover { background:#ffd6d0; }
+
+  .export-info { background: var(--cream); border-radius: 12px; padding: 14px 16px; font-size: 0.82rem; color: var(--light-text); line-height: 1.6; margin-top: 16px; }
+
+  @media (max-width: 600px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .view-grid { grid-template-columns: 1fr 1fr; }
+    .stats-bar { gap: 20px; }
+    .modal { padding: 24px 20px; }
+  }
+
+  /* TABS */
+  .tabs { display: flex; background: white; border-bottom: 2px solid var(--blush); padding: 0 24px; }
+  .tab-btn {
+    padding: 14px 24px;
+    border: none;
+    background: none;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--light-text);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tab-btn:hover { color: var(--rose); }
+  .tab-btn.active { color: var(--rose); border-bottom-color: var(--rose); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* INSTRUCTION TAB */
+  .instr { max-width: 860px; margin: 0 auto; padding: 40px 24px 80px; }
+  .instr-section { margin-bottom: 36px; }
+  .instr-h { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--deep); margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+  .instr-h span { background: var(--rose); color: white; width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.85rem; font-family: 'Nunito', sans-serif; flex-shrink: 0; }
+  .instr-p { font-size: 0.88rem; color: var(--light-text); line-height: 1.8; margin-bottom: 12px; }
+  .instr-steps { display: flex; flex-direction: column; gap: 10px; }
+  .instr-step { display: flex; gap: 14px; align-items: flex-start; background: #fffaf7; border: 1px solid var(--blush); border-radius: 12px; padding: 14px 16px; }
+  .instr-step-icon { font-size: 1.4rem; flex-shrink: 0; }
+  .instr-step-text { font-size: 0.85rem; color: var(--text); line-height: 1.7; }
+  .instr-step-text strong { color: var(--deep); }
+  .instr-warn { background: #fff8e8; border: 1.5px solid #f0d080; border-radius: 14px; padding: 18px 20px; }
+  .instr-warn-title { font-weight: 700; color: #7a5a00; margin-bottom: 10px; font-size: 0.9rem; }
+  .instr-warn p { font-size: 0.85rem; color: #7a5a00; line-height: 1.75; }
+  .instr-table { width: 100%; border-collapse: collapse; font-size: 0.83rem; margin-top: 8px; }
+  .instr-table th { background: var(--deep); color: white; padding: 10px 14px; text-align: left; font-weight: 600; }
+  .instr-table th:first-child { border-radius: 8px 0 0 0; }
+  .instr-table th:last-child { border-radius: 0 8px 0 0; }
+  .instr-table td { padding: 10px 14px; border-bottom: 1px solid var(--blush); }
+  .instr-table tr:nth-child(even) td { background: #fffaf7; }
+  .instr-table td:first-child { font-weight: 700; color: var(--rose); }
+  .instr-faq { display: flex; flex-direction: column; gap: 12px; }
+  .instr-faq-item { background: white; border: 1px solid var(--blush); border-radius: 12px; padding: 16px 18px; }
+  .instr-faq-q { font-weight: 700; color: var(--deep); font-size: 0.88rem; margin-bottom: 6px; }
+  .instr-faq-a { font-size: 0.83rem; color: var(--light-text); line-height: 1.7; }
+
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <h1>📖 Дневник <em>мастера</em></h1>
+    <p>Все ваши изделия в одном месте 🌸</p>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-outline" onclick="showHelp()">❓ Как работать</button>
+    <button class="btn btn-outline" onclick="backupData()">💾 Резервная копия</button>
+    <button class="btn btn-outline" onclick="restoreData()">📂 Восстановить</button>
+    <button class="btn btn-outline" onclick="exportReport()">🖨️ Отчёт</button>
+    <button class="btn btn-primary" onclick="openAdd()">+ Добавить работу</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" id="tab-diary" onclick="switchTab('diary')">📖 Мой дневник</button>
+  <button class="tab-btn" id="tab-instr" onclick="switchTab('instr')">❓ Инструкция</button>
+</div>
+
+<div class="tab-content active" id="content-diary">
+<div class="stats-bar" id="statsBar">
+  <div class="stat"><div class="stat-value" id="statTotal">0</div><div class="stat-label">Всего работ</div></div>
+  <div class="stat"><div class="stat-value" id="statSold">0</div><div class="stat-label">Продано</div></div>
+  <div class="stat"><div class="stat-value" id="statRevenue">0 ₽</div><div class="stat-label">Выручка</div></div>
+  <div class="stat"><div class="stat-value" id="statProfit">0 ₽</div><div class="stat-label">Прибыль</div></div>
+  <div class="stat"><div class="stat-value" id="statHours">0 ч</div><div class="stat-label">Часов работы</div></div>
+</div>
+
+<div class="main">
+  <div class="filters">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Поиск по названию, материалам..." oninput="renderGrid()">
+    </div>
+    <select class="filter-select" id="filterStatus" onchange="renderGrid()">
+      <option value="">Все статусы</option>
+      <option value="available">В наличии</option>
+      <option value="sold">Продано</option>
+      <option value="gift">Подарено</option>
+      <option value="personal">Личное</option>
+    </select>
+    <select class="filter-select" id="filterSort" onchange="renderGrid()">
+      <option value="date-desc">Сначала новые</option>
+      <option value="date-asc">Сначала старые</option>
+      <option value="price-desc">По цене ↓</option>
+      <option value="profit-desc">По прибыли ↓</option>
+    </select>
+  </div>
+  <div class="grid" id="grid"></div>
+</div>
+
+<!-- ADD/EDIT MODAL -->
+<div class="overlay" id="addOverlay" onclick="closeOnOverlay(event,'addOverlay')">
+  <div class="modal">
+    <button class="modal-close" onclick="closeOverlay('addOverlay')">✕</button>
+    <div class="modal-title" id="modalTitle">Новая работа</div>
+
+    <div class="form-grid">
+      <div class="form-group full">
+        <div class="form-label">Фото</div>
+        <div class="photo-preview" id="photoPreview" onclick="document.getElementById('photoFile').click()">
+          <input type="file" id="photoFile" accept="image/*" onchange="handlePhoto(event)">
+          <span class="photo-preview-icon">📷</span>
+          <span class="photo-preview-text">Нажмите чтобы добавить фото</span>
+        </div>
+      </div>
+
+      <div class="form-group full">
+        <div class="form-label">Название изделия *</div>
+        <input class="form-input" id="fName" type="text" placeholder="Например: Серьги с цветком">
+      </div>
+
+      <div class="form-group">
+        <div class="form-label">Дата создания</div>
+        <input class="form-input" id="fDate" type="date">
+      </div>
+
+      <div class="form-group">
+        <div class="form-label">Статус</div>
+        <select class="form-select" id="fStatus">
+          <option value="available">В наличии</option>
+          <option value="sold">Продано</option>
+          <option value="gift">Подарено</option>
+          <option value="personal">Личное</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <div class="form-label">Время работы</div>
+        <input class="form-input" id="fTime" type="number" min="0" step="0.5" placeholder="часов">
+      </div>
+
+      <div class="form-group">
+        <div class="form-label">Себестоимость</div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <input class="form-input" id="fCost" type="number" min="0" placeholder="₽" oninput="calcProfit()" style="flex:1;">
+          <button type="button" class="btn btn-sm" style="background:var(--blush);color:var(--warm);white-space:nowrap;border-radius:10px;padding:10px 12px;" onclick="toggleMiniCalc()">🧮 Рассчитать</button>
+        </div>
+      </div>
+
+      <!-- MINI CALCULATOR -->
+      <div class="form-group full" id="miniCalcBlock" style="display:none;">
+        <div style="background:#fffaf7; border:1.5px solid var(--blush); border-radius:14px; padding:20px;">
+          <div style="font-size:0.8rem; font-weight:700; color:var(--warm); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:14px;">🧮 Мини-калькулятор себестоимости</div>
+
+          <!-- Materials -->
+          <div style="font-size:0.72rem; font-weight:700; color:var(--light-text); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">Материалы</div>
+          <div id="miniMatList" style="display:flex; flex-direction:column; gap:8px;"></div>
+          <button type="button" onclick="addMiniMat()" style="margin-top:8px; padding:7px 14px; border:1.5px dashed var(--rose); background:none; color:var(--rose); border-radius:8px; font-family:'Nunito',sans-serif; font-size:0.78rem; font-weight:600; cursor:pointer;">+ Материал</button>
+
+          <!-- Time & overhead -->
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px;">
+            <div>
+              <div style="font-size:0.72rem; font-weight:700; color:var(--light-text); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">Время работы</div>
+              <div style="display:flex; gap:6px;">
+                <input class="form-input" id="mcTime" type="number" min="0" step="0.5" placeholder="часов" oninput="calcMiniCost()" style="flex:1;">
+                <input class="form-input" id="mcRate" type="number" min="0" placeholder="₽/ч" oninput="calcMiniCost()" style="flex:1;" value="200">
+              </div>
+            </div>
+            <div>
+              <div style="font-size:0.72rem; font-weight:700; color:var(--light-text); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">Накладные расходы</div>
+              <input class="form-input" id="mcOverhead" type="number" min="0" placeholder="₽ (упаковка, доставка...)" oninput="calcMiniCost()">
+            </div>
+          </div>
+
+          <!-- Result -->
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-top:16px; background:linear-gradient(135deg,var(--deep),#7a3d35); border-radius:12px; padding:14px 16px;">
+            <span style="color:rgba(255,255,255,0.65); font-size:0.82rem;">Итого себестоимость:</span>
+            <span id="mcResult" style="font-family:'Playfair Display',serif; font-size:1.3rem; color:#ffd080; font-weight:600;">0 ₽</span>
+          </div>
+          <button type="button" onclick="applyMiniCost()" class="btn btn-rose" style="width:100%; margin-top:10px; justify-content:center;">✅ Применить к изделию</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <div class="form-label">Цена продажи</div>
+        <input class="form-input" id="fPrice" type="number" min="0" placeholder="₽" oninput="calcProfit()">
+      </div>
+
+      <div class="form-group">
+        <div class="form-label">Техника</div>
+        <input class="form-input" id="fTech" type="text" placeholder="Полимерная глина, декупаж...">
+      </div>
+
+      <div class="form-group full">
+        <div class="profit-display">
+          <span class="profit-label">Прибыль с изделия</span>
+          <span class="profit-value" id="profitDisplay">— ₽</span>
+        </div>
+      </div>
+
+      <div class="form-group full">
+        <div class="form-label">Материалы</div>
+        <input class="form-input" id="fMaterials" type="text" placeholder="Cernit N°1, Fimo Effect, швензы серебро...">
+      </div>
+
+      <div class="form-group full">
+        <div class="form-label">Заметки</div>
+        <textarea class="form-textarea" id="fNotes" placeholder="Что получилось, что улучшить, отзыв покупателя..."></textarea>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-danger" onclick="closeOverlay('addOverlay')">Отмена</button>
+      <button class="btn btn-rose" onclick="saveWork()">💾 Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW MODAL -->
+<div class="overlay" id="viewOverlay" onclick="closeOnOverlay(event,'viewOverlay')">
+  <div class="modal view-modal">
+    <button class="modal-close" onclick="closeOverlay('viewOverlay')">✕</button>
+    <div id="viewContent"></div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM -->
+<div class="overlay" id="deleteOverlay" onclick="closeOnOverlay(event,'deleteOverlay')">
+  <div class="modal" style="max-width:400px; text-align:center;">
+    <button class="modal-close" onclick="closeOverlay('deleteOverlay')">✕</button>
+    <div style="font-size:3rem; margin-bottom:16px;">🗑️</div>
+    <div class="modal-title" style="text-align:center;">Удалить работу?</div>
+    <p style="color:var(--light-text); font-size:0.88rem; margin-bottom:24px;">Это действие нельзя отменить.</p>
+    <div style="display:flex; gap:10px; justify-content:center;">
+      <button class="btn btn-outline" style="background:var(--cream); color:var(--text);" onclick="closeOverlay('deleteOverlay')">Отмена</button>
+      <button class="btn btn-danger" onclick="confirmDelete()" style="background:#c0392b; color:white;">Удалить</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- end diary tab -->
+
+<!-- INSTRUCTION TAB -->
+<div class="tab-content" id="content-instr">
+<div class="instr">
+
+  <div class="instr-section">
+    <div class="instr-h"><span>1</span> Что такое Дневник мастера?</div>
+    <p class="instr-p">Дневник мастера — это файл <strong>diary.html</strong>, который открывается в браузере прямо на вашем компьютере. Он работает как приложение: вы добавляете свои изделия, ведёте учёт материалов, времени и прибыли. Интернет не нужен — всё работает офлайн.</p>
+  </div>
+
+  <div class="instr-section">
+    <div class="instr-h"><span>2</span> Как открыть?</div>
+    <div class="instr-steps">
+      <div class="instr-step"><span class="instr-step-icon">1️⃣</span><div class="instr-step-text"><strong>Скачайте файл</strong> — сохраните diary.html на компьютер (Рабочий стол или папка «Документы»)</div></div>
+      <div class="instr-step"><span class="instr-step-icon">2️⃣</span><div class="instr-step-text"><strong>Откройте двойным кликом</strong> — файл откроется в браузере (Chrome, Firefox, Edge)</div></div>
+      <div class="instr-step"><span class="instr-step-icon">3️⃣</span><div class="instr-step-text"><strong>Готово!</strong> — нажмите «+ Добавить работу» и начните вести записи</div></div>
+    </div>
+  </div>
+
+  <div class="instr-section">
+    <div class="instr-h"><span>3</span> Как добавить изделие?</div>
+    <div class="instr-steps">
+      <div class="instr-step"><span class="instr-step-icon">📷</span><div class="instr-step-text"><strong>Фото</strong> — нажмите на область с камерой и выберите фото с компьютера</div></div>
+      <div class="instr-step"><span class="instr-step-icon">🏷️</span><div class="instr-step-text"><strong>Название, дата, статус, техника</strong> — заполните нужные поля</div></div>
+      <div class="instr-step"><span class="instr-step-icon">🧮</span><div class="instr-step-text"><strong>Себестоимость</strong> — нажмите «🧮 Рассчитать» рядом с полем, введите материалы и время — сумма подставится автоматически</div></div>
+      <div class="instr-step"><span class="instr-step-icon">💾</span><div class="instr-step-text"><strong>Сохранить</strong> — нажмите кнопку, запись появится в дневнике</div></div>
+    </div>
+  </div>
+
+  <div class="instr-section">
+    <div class="instr-h"><span>4</span> ⚠️ Как не потерять данные?</div>
+    <div class="instr-warn">
+      <div class="instr-warn-title">⚠️ Важно прочитать!</div>
+      <p>Данные хранятся <strong>только в этом браузере</strong> на этом компьютере. Если вы очистите историю браузера или откроете файл в другом браузере — данные не сохранятся!</p>
+      <p style="margin-top:10px;"><strong>Решение: делайте резервные копии!</strong> Нажмите «💾 Резервная копия» — браузер скачает .json файл. Храните его в надёжном месте. При необходимости восстановите через «📂 Восстановить».</p>
+    </div>
+  </div>
+
+  <div class="instr-section">
+    <div class="instr-h"><span>5</span> Кнопки управления</div>
+    <table class="instr-table">
+      <thead><tr><th>Кнопка</th><th>Что делает</th></tr></thead>
+      <tbody>
+        <tr><td>❓ Как работать</td><td>Показывает эту инструкцию</td></tr>
+        <tr><td>💾 Резервная копия</td><td>Скачивает все данные в .json файл — ваша страховка!</td></tr>
+        <tr><td>📂 Восстановить</td><td>Загружает данные из ранее сохранённого .json файла</td></tr>
+        <tr><td>🖨️ Отчёт</td><td>Открывает красивый отчёт для печати или сохранения в PDF</td></tr>
+        <tr><td>+ Добавить работу</td><td>Открывает форму добавления нового изделия</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="instr-section">
+    <div class="instr-h"><span>6</span> Частые вопросы</div>
+    <div class="instr-faq">
+      <div class="instr-faq-item"><div class="instr-faq-q">Дневник открывается пустым — куда делись данные?</div><div class="instr-faq-a">Скорее всего вы открыли файл в другом браузере или очистили историю. Восстановите данные через кнопку «📂 Восстановить» из резервной копии.</div></div>
+      <div class="instr-faq-item"><div class="instr-faq-q">Можно ли пользоваться без интернета?</div><div class="instr-faq-a">Да! После сохранения файла на компьютер дневник работает полностью офлайн.</div></div>
+      <div class="instr-faq-item"><div class="instr-faq-q">Можно ли открыть на телефоне?</div><div class="instr-faq-a">Да, но данные телефона и компьютера не синхронизируются — это разные хранилища.</div></div>
+      <div class="instr-faq-item"><div class="instr-faq-q">Потерял файл diary.html — где скачать снова?</div><div class="instr-faq-a">Скачайте по ссылке: <a href="https://jacobrunik.github.io/milug/diary.html" target="_blank" style="color:var(--rose);">jacobrunik.github.io/milug/diary.html</a> — это всегда актуальная версия.</div></div>
+    </div>
+  </div>
+
+</div>
+</div><!-- end instr tab -->
+
+<!-- WELCOME MODAL -->
+<div class="overlay" id="welcomeOverlay">
+  <div class="modal" style="max-width:520px;">
+    <div style="text-align:center; margin-bottom:20px;">
+      <div style="font-size:3rem; margin-bottom:12px;">📖</div>
+      <div class="modal-title" style="text-align:center; font-size:1.6rem;">Добро пожаловать<br>в Дневник мастера!</div>
+    </div>
+
+    <div style="background:#fff8e8; border:1.5px solid #f0d080; border-radius:14px; padding:18px 20px; margin-bottom:16px;">
+      <div style="font-weight:700; color:#7a5a00; margin-bottom:10px; font-size:0.9rem;">⚠️ Важно прочитать перед началом!</div>
+      <p style="font-size:0.85rem; color:#7a5a00; line-height:1.7;">Данные дневника хранятся <strong>только в этом браузере</strong> на этом компьютере. Если вы очистите историю браузера, переустановите систему или откроете дневник в другом браузере — данные <strong>не сохранятся</strong>.</p>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:20px;">
+      <div style="display:flex; gap:12px; align-items:flex-start; padding:12px 14px; background:#fffaf7; border-radius:12px; border:1px solid var(--blush);">
+        <span style="font-size:1.3rem; flex-shrink:0;">💾</span>
+        <div style="font-size:0.83rem; color:var(--text); line-height:1.6;"><strong>Делайте резервные копии!</strong> Нажимайте кнопку «Резервная копия» и сохраняйте файл на компьютер. Рекомендуем делать это после каждой новой записи или хотя бы раз в неделю.</div>
+      </div>
+      <div style="display:flex; gap:12px; align-items:flex-start; padding:12px 14px; background:#fffaf7; border-radius:12px; border:1px solid var(--blush);">
+        <span style="font-size:1.3rem; flex-shrink:0;">📂</span>
+        <div style="font-size:0.83rem; color:var(--text); line-height:1.6;"><strong>Восстановление</strong> — если данные потерялись, нажмите «Восстановить» и выберите ранее сохранённый файл резервной копии.</div>
+      </div>
+      <div style="display:flex; gap:12px; align-items:flex-start; padding:12px 14px; background:#fffaf7; border-radius:12px; border:1px solid var(--blush);">
+        <span style="font-size:1.3rem; flex-shrink:0;">🖨️</span>
+        <div style="font-size:0.83rem; color:var(--text); line-height:1.6;"><strong>Отчёт для печати</strong> — кнопка «Отчёт» открывает красивую страницу которую можно распечатать или сохранить как PDF.</div>
+      </div>
+    </div>
+
+    <label style="display:flex; align-items:center; gap:10px; cursor:pointer; margin-bottom:20px;">
+      <input type="checkbox" id="dontShowAgain" style="width:18px;height:18px;accent-color:var(--rose);cursor:pointer;">
+      <span style="font-size:0.82rem; color:var(--light-text);">Больше не показывать при запуске</span>
+    </label>
+
+    <button class="btn btn-rose" style="width:100%; justify-content:center; font-size:1rem; padding:14px;" onclick="closeWelcome()">
+      Понятно, начинаем! 🌸
+    </button>
+  </div>
+</div>
+
+<!-- HELP MODAL -->
+<div class="overlay" id="helpOverlay" onclick="closeOnOverlay(event,'helpOverlay')">
+  <div class="modal" style="max-width:520px;">
+    <button class="modal-close" onclick="closeOverlay('helpOverlay')">✕</button>
+    <div class="modal-title">❓ Как работать с дневником</div>
+
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <div style="padding:14px 16px; background:#fffaf7; border-radius:12px; border:1px solid var(--blush);">
+        <div style="font-weight:700; color:var(--deep); margin-bottom:6px; font-size:0.88rem;">📝 Добавление работы</div>
+        <div style="font-size:0.82rem; color:var(--light-text); line-height:1.65;">Нажмите «+ Добавить работу». Заполните поля: название, дата, техника, статус. Для расчёта себестоимости нажмите кнопку «🧮 Рассчитать» рядом с полем — откроется мини-калькулятор.</div>
+      </div>
+      <div style="padding:14px 16px; background:#fff8e8; border:1.5px solid #f0d080; border-radius:12px;">
+        <div style="font-weight:700; color:#7a5a00; margin-bottom:6px; font-size:0.88rem;">⚠️ Хранение данных</div>
+        <div style="font-size:0.82rem; color:#7a5a00; line-height:1.65;">Данные хранятся только в этом браузере. При очистке кэша или переустановке системы данные пропадут. <strong>Регулярно делайте резервные копии!</strong></div>
+      </div>
+      <div style="padding:14px 16px; background:#fffaf7; border-radius:12px; border:1px solid var(--blush);">
+        <div style="font-weight:700; color:var(--deep); margin-bottom:6px; font-size:0.88rem;">💾 Резервная копия</div>
+        <div style="font-size:0.82rem; color:var(--light-text); line-height:1.65;">Кнопка «Резервная копия» сохраняет все данные в JSON-файл на компьютер. Храните его в надёжном месте — хоть на флешке, хоть в облаке.</div>
+      </div>
+      <div style="padding:14px 16px; background:#fffaf7; border-radius:12px; border:1px solid var(--blush);">
+        <div style="font-weight:700; color:var(--deep); margin-bottom:6px; font-size:0.88rem;">📂 Восстановление</div>
+        <div style="font-size:0.82rem; color:var(--light-text); line-height:1.65;">Кнопка «Восстановить» загружает данные из ранее сохранённого JSON-файла. Внимание: текущие данные будут заменены!</div>
+      </div>
+    </div>
+
+    <button class="btn btn-rose" style="width:100%; justify-content:center; margin-top:20px;" onclick="closeOverlay('helpOverlay')">Понятно 🌸</button>
+  </div>
+</div>
+
+<!-- RESTORE INPUT -->
+<input type="file" id="restoreFile" accept=".json" style="display:none" onchange="doRestore(event)">
+
+<script>
+// ── MINI CALCULATOR ──
+let works = JSON.parse(localStorage.getItem('diary_works') || '[]');
+let editingId = null;
+let deletingId = null;
+let currentPhoto = null;
+
+const STATUS_LABELS = {
+  sold: '✅ Продано',
+  available: '🏷️ В наличии',
+  gift: '🎁 Подарено',
+  personal: '👤 Личное'
+};
+const STATUS_CLASSES = {
+  sold: 'status-sold',
+  available: 'status-available',
+  gift: 'status-gift',
+  personal: 'status-personal'
+};
+
+// ── SAVE/LOAD ──
+function save() {
+  localStorage.setItem('diary_works', JSON.stringify(works));
+}
+
+// ── STATS ──
+function updateStats() {
+  const sold = works.filter(w => w.status === 'sold');
+  const revenue = sold.reduce((s, w) => s + (+w.price || 0), 0);
+  const profit = sold.reduce((s, w) => s + ((+w.price || 0) - (+w.cost || 0)), 0);
+  const hours = works.reduce((s, w) => s + (+w.time || 0), 0);
+  document.getElementById('statTotal').textContent = works.length;
+  document.getElementById('statSold').textContent = sold.length;
+  document.getElementById('statRevenue').textContent = revenue.toLocaleString('ru') + ' ₽';
+  document.getElementById('statProfit').textContent = profit.toLocaleString('ru') + ' ₽';
+  document.getElementById('statHours').textContent = hours + ' ч';
+}
+
+// ── RENDER ──
+function renderGrid() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const filterStatus = document.getElementById('filterStatus').value;
+  const sort = document.getElementById('filterSort').value;
+
+  let filtered = works.filter(w => {
+    const matchSearch = !search ||
+      w.name?.toLowerCase().includes(search) ||
+      w.materials?.toLowerCase().includes(search) ||
+      w.tech?.toLowerCase().includes(search);
+    const matchStatus = !filterStatus || w.status === filterStatus;
+    return matchSearch && matchStatus;
+  });
+
+  filtered.sort((a, b) => {
+    if (sort === 'date-asc') return new Date(a.date) - new Date(b.date);
+    if (sort === 'price-desc') return (+b.price || 0) - (+a.price || 0);
+    if (sort === 'profit-desc') return ((+b.price||0)-(+b.cost||0)) - ((+a.price||0)-(+a.cost||0));
+    return new Date(b.date) - new Date(a.date);
+  });
+
+  const grid = document.getElementById('grid');
+  if (filtered.length === 0) {
+    grid.innerHTML = `<div class="empty">
+      <div class="empty-icon">📖</div>
+      <h3>${works.length === 0 ? 'Дневник пока пуст' : 'Ничего не найдено'}</h3>
+      <p>${works.length === 0 ? 'Добавьте первую работу — нажмите кнопку выше!' : 'Попробуйте изменить фильтры'}</p>
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(w => {
+    const profit = (+w.price || 0) - (+w.cost || 0);
+    const dateStr = w.date ? new Date(w.date).toLocaleDateString('ru', {day:'numeric', month:'long', year:'numeric'}) : '—';
+    return `
+      <div class="work-card" onclick="viewWork('${w.id}')">
+        <div class="card-img">
+          ${w.photo ? `<img src="${w.photo}" alt="${w.name}">` : `<span class="no-photo">🌸</span>`}
+          <span class="card-status ${STATUS_CLASSES[w.status]}">${STATUS_LABELS[w.status]}</span>
+        </div>
+        <div class="card-body">
+          <div class="card-title">${w.name || 'Без названия'}</div>
+          <div class="card-meta">
+            ${w.tech ? `<span class="card-tag">🎨 ${w.tech}</span>` : ''}
+            ${w.time ? `<span class="card-tag">⏱ ${w.time} ч</span>` : ''}
+            <span class="card-tag">📅 ${dateStr}</span>
+          </div>
+          <div class="card-numbers">
+            <div class="card-num">
+              <div class="card-num-label">Себестоимость</div>
+              <div class="card-num-value">${w.cost ? w.cost + ' ₽' : '—'}</div>
+            </div>
+            <div class="card-num">
+              <div class="card-num-label">Цена продажи</div>
+              <div class="card-num-value">${w.price ? w.price + ' ₽' : '—'}</div>
+            </div>
+            <div class="card-num">
+              <div class="card-num-label">Прибыль</div>
+              <div class="card-num-value profit">${w.price && w.cost ? profit + ' ₽' : '—'}</div>
+            </div>
+            <div class="card-num">
+              <div class="card-num-label">Наценка</div>
+              <div class="card-num-value">${w.cost && w.price ? Math.round((profit / +w.cost) * 100) + '%' : '—'}</div>
+            </div>
+          </div>
+          <div class="card-actions" onclick="event.stopPropagation()">
+            <button class="btn btn-sm btn-outline" style="background:var(--cream);color:var(--text);border:1px solid var(--blush);" onclick="editWork('${w.id}')">✏️ Изменить</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteWork('${w.id}')">🗑️</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+  updateStats();
+}
+
+// ── ADD/EDIT ──
+function openAdd() {
+  editingId = null;
+  currentPhoto = null;
+  document.getElementById('modalTitle').textContent = '✨ Новая работа';
+  document.getElementById('fName').value = '';
+  document.getElementById('fDate').value = new Date().toISOString().split('T')[0];
+  document.getElementById('fStatus').value = 'available';
+  document.getElementById('fTime').value = '';
+  document.getElementById('fCost').value = '';
+  document.getElementById('fPrice').value = '';
+  document.getElementById('fTech').value = '';
+  document.getElementById('fMaterials').value = '';
+  document.getElementById('fNotes').value = '';
+  document.getElementById('profitDisplay').textContent = '— ₽';
+  miniMats = [{ name:'', price:0, volume:100, used:0 }];
+  document.getElementById('miniCalcBlock').style.display = 'none';
+  document.getElementById('mcTime').value = '';
+  document.getElementById('mcOverhead').value = '';
+  resetPhotoPreview();
+  openOverlay('addOverlay');
+}
+
+function editWork(id) {
+  const w = works.find(x => x.id === id);
+  if (!w) return;
+  editingId = id;
+  currentPhoto = w.photo || null;
+  document.getElementById('modalTitle').textContent = '✏️ Редактировать работу';
+  document.getElementById('fName').value = w.name || '';
+  document.getElementById('fDate').value = w.date || '';
+  document.getElementById('fStatus').value = w.status || 'available';
+  document.getElementById('fTime').value = w.time || '';
+  document.getElementById('fCost').value = w.cost || '';
+  document.getElementById('fPrice').value = w.price || '';
+  document.getElementById('fTech').value = w.tech || '';
+  document.getElementById('fMaterials').value = w.materials || '';
+  document.getElementById('fNotes').value = w.notes || '';
+  calcProfit();
+  if (w.photo) {
+    document.getElementById('photoPreview').innerHTML = `
+      <img src="${w.photo}" alt="">
+      <input type="file" id="photoFile" accept="image/*" onchange="handlePhoto(event)">
+    `;
+  } else {
+    resetPhotoPreview();
+  }
+  openOverlay('addOverlay');
+}
+
+function saveWork() {
+  const name = document.getElementById('fName').value.trim();
+  if (!name) { document.getElementById('fName').focus(); return; }
+
+  const work = {
+    id: editingId || Date.now().toString(),
+    name,
+    date: document.getElementById('fDate').value,
+    status: document.getElementById('fStatus').value,
+    time: document.getElementById('fTime').value,
+    cost: document.getElementById('fCost').value,
+    price: document.getElementById('fPrice').value,
+    tech: document.getElementById('fTech').value,
+    materials: document.getElementById('fMaterials').value,
+    notes: document.getElementById('fNotes').value,
+    photo: currentPhoto,
+    updatedAt: new Date().toISOString()
+  };
+
+  if (editingId) {
+    const idx = works.findIndex(x => x.id === editingId);
+    works[idx] = work;
+  } else {
+    works.unshift(work);
+  }
+
+  save();
+  renderGrid();
+  closeOverlay('addOverlay');
+}
+
+// ── PHOTO ──
+function handlePhoto(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    currentPhoto = ev.target.result;
+    document.getElementById('photoPreview').innerHTML = `
+      <img src="${currentPhoto}" alt="">
+      <input type="file" id="photoFile" accept="image/*" onchange="handlePhoto(event)">
+    `;
+  };
+  reader.readAsDataURL(file);
+}
+
+function resetPhotoPreview() {
+  document.getElementById('photoPreview').innerHTML = `
+    <input type="file" id="photoFile" accept="image/*" onchange="handlePhoto(event)">
+    <span class="photo-preview-icon">📷</span>
+    <span class="photo-preview-text">Нажмите чтобы добавить фото</span>
+  `;
+}
+
+// ── VIEW ──
+function viewWork(id) {
+  const w = works.find(x => x.id === id);
+  if (!w) return;
+  const profit = (+w.price || 0) - (+w.cost || 0);
+  const markup = w.cost && w.price ? Math.round((profit / +w.cost) * 100) : null;
+  const dateStr = w.date ? new Date(w.date).toLocaleDateString('ru', {day:'numeric', month:'long', year:'numeric'}) : '—';
+
+  document.getElementById('viewContent').innerHTML = `
+    <div class="view-img">
+      ${w.photo ? `<img src="${w.photo}" alt="${w.name}">` : '🌸'}
+    </div>
+    <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:16px; flex-wrap:wrap;">
+      <div>
+        <div style="font-family:'Playfair Display',serif; font-size:1.5rem; color:var(--deep);">${w.name}</div>
+        <div style="margin-top:6px;"><span class="card-status ${STATUS_CLASSES[w.status]}">${STATUS_LABELS[w.status]}</span></div>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-sm" style="background:var(--cream);border:1px solid var(--blush);" onclick="editWork('${w.id}'); closeOverlay('viewOverlay')">✏️</button>
+        <button class="btn btn-sm btn-danger" onclick="closeOverlay('viewOverlay'); deleteWork('${w.id}')">🗑️</button>
+      </div>
+    </div>
+    <div class="view-grid">
+      <div class="view-item"><div class="view-item-label">Дата</div><div class="view-item-value">${dateStr}</div></div>
+      <div class="view-item"><div class="view-item-label">Время</div><div class="view-item-value">${w.time ? w.time + ' ч' : '—'}</div></div>
+      <div class="view-item"><div class="view-item-label">Техника</div><div class="view-item-value">${w.tech || '—'}</div></div>
+      <div class="view-item"><div class="view-item-label">Себестоимость</div><div class="view-item-value">${w.cost ? w.cost + ' ₽' : '—'}</div></div>
+      <div class="view-item"><div class="view-item-label">Цена продажи</div><div class="view-item-value">${w.price ? w.price + ' ₽' : '—'}</div></div>
+      <div class="view-item"><div class="view-item-label">Прибыль</div><div class="view-item-value green">${w.price && w.cost ? profit + ' ₽ (' + markup + '%)' : '—'}</div></div>
+    </div>
+    ${w.materials ? `<div class="view-section"><div class="view-section-title">Материалы</div><div class="view-text">${w.materials}</div></div>` : ''}
+    ${w.notes ? `<div class="view-section"><div class="view-section-title">Заметки</div><div class="view-text">${w.notes}</div></div>` : ''}
+  `;
+  openOverlay('viewOverlay');
+}
+
+// ── DELETE ──
+function deleteWork(id) {
+  deletingId = id;
+  openOverlay('deleteOverlay');
+}
+function confirmDelete() {
+  works = works.filter(w => w.id !== deletingId);
+  save();
+  renderGrid();
+  closeOverlay('deleteOverlay');
+}
+
+// ── PROFIT CALC ──
+function calcProfit() {
+  const cost = +document.getElementById('fCost').value || 0;
+  const price = +document.getElementById('fPrice').value || 0;
+  if (cost || price) {
+    const profit = price - cost;
+    document.getElementById('profitDisplay').textContent = profit + ' ₽';
+  } else {
+    document.getElementById('profitDisplay').textContent = '— ₽';
+  }
+}
+
+// ── EXPORT ──
+function exportReport() {
+  if (works.length === 0) { alert('Нет работ для отчёта'); return; }
+
+  const sold = works.filter(w => w.status === 'sold');
+  const revenue = sold.reduce((s,w) => s + (+w.price||0), 0);
+  const totalCost = works.reduce((s,w) => s + (+w.cost||0), 0);
+  const totalProfit = sold.reduce((s,w) => s + ((+w.price||0)-(+w.cost||0)), 0);
+  const totalHours = works.reduce((s,w) => s + (+w.time||0), 0);
+  const today = new Date().toLocaleDateString('ru', {day:'numeric', month:'long', year:'numeric'});
+
+  const sorted = [...works].sort((a,b) => new Date(b.date)-new Date(a.date));
+
+  const rows = sorted.map(w => {
+    const profit = (+w.price||0) - (+w.cost||0);
+    const dateStr = w.date ? new Date(w.date).toLocaleDateString('ru', {day:'numeric', month:'short', year:'numeric'}) : '—';
+    const statusColors = { sold:'#2d6e2d', available:'#856404', gift:'#5a2d8a', personal:'#555' };
+    const statusBg = { sold:'#e8f5ee', available:'#fff3cd', gift:'#e8e0f5', personal:'#f0f0f0' };
+    return `
+      <tr>
+        <td style="font-weight:600;">${w.name || '—'}</td>
+        <td>${dateStr}</td>
+        <td><span style="background:${statusBg[w.status]};color:${statusColors[w.status]};padding:3px 10px;border-radius:12px;font-size:0.78rem;font-weight:700;">${STATUS_LABELS[w.status]}</span></td>
+        <td>${w.tech || '—'}</td>
+        <td style="text-align:center;">${w.time ? w.time+' ч' : '—'}</td>
+        <td style="text-align:right;">${w.cost ? w.cost+' ₽' : '—'}</td>
+        <td style="text-align:right;font-weight:600;">${w.price ? w.price+' ₽' : '—'}</td>
+        <td style="text-align:right;color:${profit>=0?'#2d6e2d':'#c0392b'};font-weight:700;">${w.price&&w.cost ? profit+' ₽' : '—'}</td>
+      </tr>
+      ${w.materials || w.notes ? `<tr style="background:#fffaf7;"><td colspan="8" style="padding:6px 14px;font-size:0.78rem;color:#7a5548;">
+        ${w.materials ? '<b>Материалы:</b> '+w.materials : ''}
+        ${w.materials && w.notes ? ' · ' : ''}
+        ${w.notes ? '<b>Заметки:</b> '+w.notes : ''}
+      </td></tr>` : ''}
+    `;
+  }).join('');
+
+  const html = `<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Дневник мастера — отчёт</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Nunito',sans-serif; color:#3d2419; background:white; padding:40px; }
+  .header { margin-bottom:36px; padding-bottom:24px; border-bottom:2px solid #f2d5c4; display:flex; justify-content:space-between; align-items:flex-end; }
+  .header h1 { font-family:'Playfair Display',serif; font-size:2rem; color:#4a2d26; }
+  .header h1 em { color:#d4836a; font-style:italic; }
+  .header-date { font-size:0.85rem; color:#7a5548; }
+  .stats { display:grid; grid-template-columns:repeat(5,1fr); gap:16px; margin-bottom:36px; }
+  .stat { background:#fdf6ee; border:1px solid #f2d5c4; border-radius:14px; padding:16px; text-align:center; }
+  .stat-value { font-family:'Playfair Display',serif; font-size:1.5rem; color:#d4836a; font-weight:600; }
+  .stat-label { font-size:0.68rem; color:#7a5548; text-transform:uppercase; letter-spacing:0.06em; margin-top:4px; }
+  table { width:100%; border-collapse:collapse; font-size:0.83rem; }
+  th { background:#4a2d26; color:white; padding:11px 14px; text-align:left; font-weight:600; font-size:0.75rem; letter-spacing:0.04em; }
+  th:first-child { border-radius:10px 0 0 0; }
+  th:last-child { border-radius:0 10px 0 0; }
+  td { padding:11px 14px; border-bottom:1px solid #f2d5c4; vertical-align:middle; }
+  tr:nth-child(4n+1) td { background:#fffaf7; }
+  .footer { margin-top:32px; padding-top:20px; border-top:1px solid #f2d5c4; font-size:0.75rem; color:#c9a090; text-align:center; }
+  @media print {
+    body { padding:20px; }
+    @page { margin:1.5cm; }
+  }
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <h1>📖 Дневник <em>мастера</em></h1>
+    <div style="margin-top:6px;font-size:0.85rem;color:#7a5548;">Отчёт по всем работам</div>
+  </div>
+  <div class="header-date">Сформирован: ${today}</div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-value">${works.length}</div><div class="stat-label">Всего работ</div></div>
+  <div class="stat"><div class="stat-value">${sold.length}</div><div class="stat-label">Продано</div></div>
+  <div class="stat"><div class="stat-value">${revenue.toLocaleString('ru')} ₽</div><div class="stat-label">Выручка</div></div>
+  <div class="stat"><div class="stat-value">${totalProfit.toLocaleString('ru')} ₽</div><div class="stat-label">Прибыль</div></div>
+  <div class="stat"><div class="stat-value">${totalHours} ч</div><div class="stat-label">Часов работы</div></div>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Название</th>
+      <th>Дата</th>
+      <th>Статус</th>
+      <th>Техника</th>
+      <th>Время</th>
+      <th>Себест.</th>
+      <th>Цена</th>
+      <th>Прибыль</th>
+    </tr>
+  </thead>
+  <tbody>${rows}</tbody>
+</table>
+
+<div class="footer">Дневник мастера · Милый уголок · Дарья Гладышева · daria.s@list.ru</div>
+
+<script>window.onload = () => window.print();<\/script>
+</body>
+</html>`;
+
+  const win = window.open('', '_blank');
+  win.document.write(html);
+  win.document.close();
+}
+
+let miniMats = [{ name:'', price:0, volume:100, used:0 }];
+
+function toggleMiniCalc() {
+  const block = document.getElementById('miniCalcBlock');
+  const isOpen = block.style.display !== 'none';
+  block.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) renderMiniMats();
+}
+
+function renderMiniMats() {
+  const list = document.getElementById('miniMatList');
+  list.innerHTML = miniMats.map((m, i) => `
+    <div class="mini-mat-row">
+      <input type="text" placeholder="Материал" value="${m.name}" oninput="miniMats[${i}].name=this.value">
+      <input type="number" placeholder="Цена" value="${m.price||''}" oninput="miniMats[${i}].price=+this.value; calcMiniCost()" min="0">
+      <input type="number" placeholder="Объём" value="${m.volume||''}" oninput="miniMats[${i}].volume=+this.value; calcMiniCost()" min="0.1" step="0.1">
+      <input type="number" placeholder="Потрачено" value="${m.used||''}" oninput="miniMats[${i}].used=+this.value; calcMiniCost()" min="0" step="0.1">
+      <button class="mini-mat-del" onclick="removeMiniMat(${i})">✕</button>
+    </div>
+  `).join('');
+  calcMiniCost();
+}
+
+function addMiniMat() {
+  miniMats.push({ name:'', price:0, volume:100, used:0 });
+  renderMiniMats();
+}
+
+function removeMiniMat(i) {
+  if (miniMats.length === 1) return;
+  miniMats.splice(i, 1);
+  renderMiniMats();
+}
+
+function calcMiniCost() {
+  const matCost = miniMats.reduce((s, m) => {
+    if (!m.volume || !m.price) return s;
+    return s + (m.price / m.volume) * m.used;
+  }, 0);
+  const time = +document.getElementById('mcTime').value || 0;
+  const rate = +document.getElementById('mcRate').value || 0;
+  const overhead = +document.getElementById('mcOverhead').value || 0;
+  const total = matCost + (time * rate) + overhead;
+  document.getElementById('mcResult').textContent = Math.round(total) + ' ₽';
+}
+
+function applyMiniCost() {
+  const result = document.getElementById('mcResult').textContent.replace(' ₽','');
+  document.getElementById('fCost').value = result;
+  calcProfit();
+  document.getElementById('miniCalcBlock').style.display = 'none';
+}
+
+function openOverlay(id) { document.getElementById(id).classList.add('open'); document.body.style.overflow = 'hidden'; }
+function closeOverlay(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow = ''; }
+function closeOnOverlay(e, id) { if (e.target === document.getElementById(id)) closeOverlay(id); }
+
+// ── TABS ──
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.getElementById('content-' + tab).classList.add('active');
+}
+
+// ── BACKUP / RESTORE ──
+function backupData() {
+  if (works.length === 0) { alert('Нет данных для сохранения'); return; }
+  const data = JSON.stringify({ works, exportedAt: new Date().toISOString(), version: 1 }, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'дневник_мастера_' + new Date().toISOString().split('T')[0] + '.json';
+  a.click();
+  localStorage.setItem('diary_last_backup', new Date().toISOString());
+}
+
+function restoreData() {
+  if (works.length > 0 && !confirm('⚠️ Текущие данные будут заменены данными из файла. Продолжить?')) return;
+  document.getElementById('restoreFile').click();
+}
+
+function doRestore(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (!data.works || !Array.isArray(data.works)) throw new Error('Неверный формат файла');
+      works = data.works;
+      save();
+      renderGrid();
+      alert(`✅ Восстановлено ${works.length} работ!`);
+    } catch(err) {
+      alert('❌ Ошибка: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+// ── WELCOME ──
+function showHelp() { switchTab('instr'); }
+
+function closeWelcome() {
+  if (document.getElementById('dontShowAgain').checked) {
+    localStorage.setItem('diary_welcome_seen', '1');
+  }
+  closeOverlay('welcomeOverlay');
+}
+
+// ── INIT ──
+renderGrid();
+if (!localStorage.getItem('diary_welcome_seen')) {
+  openOverlay('welcomeOverlay');
+}
+
+// Backup reminder - if more than 7 days since last backup and has data
+const lastBackup = localStorage.getItem('diary_last_backup');
+if (works.length > 0 && lastBackup) {
+  const daysSince = Math.floor((Date.now() - new Date(lastBackup)) / 86400000);
+  if (daysSince >= 7) {
+    setTimeout(() => {
+      if (confirm(`💾 Прошло ${daysSince} дней с последней резервной копии. Сохранить сейчас?`)) {
+        backupData();
+      }
+    }, 2000);
+  }
+}
+</script>
+</body>
+</html>
