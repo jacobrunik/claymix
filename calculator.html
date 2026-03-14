@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Калькулятор себестоимости — Милый уголок</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #fdf6ee;
+    --blush: #f2d5c4;
+    --rose: #d4836a;
+    --warm: #8b5e52;
+    --deep: #4a2d26;
+    --sage: #a8b89a;
+    --gold: #c9a96e;
+    --text: #3d2419;
+    --light-text: #7a5548;
+    --green: #4a9e6a;
+    --light-green: #e8f5ee;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--cream);
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, var(--deep), #7a3d35);
+    padding: 32px 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Ccircle cx='30' cy='30' r='1' fill='white' opacity='0.06'/%3E%3C/svg%3E");
+  }
+  .header-content { position: relative; z-index: 1; }
+  .header-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255,255,255,0.6);
+    text-decoration: none;
+    font-size: 0.82rem;
+    margin-bottom: 16px;
+    transition: color 0.2s;
+  }
+  .header-back:hover { color: var(--blush); }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    color: white;
+    line-height: 1.2;
+  }
+  .header h1 em { color: var(--blush); font-style: italic; }
+  .header p {
+    color: rgba(255,255,255,0.65);
+    font-size: 0.9rem;
+    margin-top: 10px;
+    font-weight: 300;
+  }
+
+  /* MAIN */
+  .main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* SECTIONS */
+  .calc-section {
+    background: white;
+    border-radius: 20px;
+    padding: 32px;
+    border: 1px solid var(--blush);
+    box-shadow: 0 2px 16px rgba(212,131,106,0.07);
+    margin-bottom: 20px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--blush);
+  }
+  .section-icon { font-size: 1.6rem; }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    color: var(--deep);
+  }
+  .section-subtitle {
+    font-size: 0.78rem;
+    color: var(--light-text);
+    font-weight: 300;
+    margin-top: 2px;
+  }
+
+  /* MATERIALS */
+  .materials-list { display: flex; flex-direction: column; gap: 12px; }
+
+  .material-row {
+    display: grid;
+    grid-template-columns: 1fr 100px 80px 80px 36px;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .material-row input, .material-row select {
+    padding: 10px 12px;
+    border: 1.5px solid var(--blush);
+    border-radius: 10px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.85rem;
+    color: var(--text);
+    background: #fffaf7;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+  .material-row input:focus, .material-row select:focus { border-color: var(--rose); }
+
+  .material-cost {
+    font-size: 0.85rem;
+    color: var(--rose);
+    font-weight: 700;
+    text-align: right;
+  }
+
+  .btn-remove {
+    width: 36px; height: 36px;
+    border: none;
+    background: #fff0ee;
+    color: var(--rose);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .btn-remove:hover { background: #ffd6d0; }
+
+  .btn-add {
+    margin-top: 12px;
+    padding: 10px 20px;
+    border: 1.5px dashed var(--rose);
+    background: none;
+    color: var(--rose);
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .btn-add:hover { background: var(--blush); border-style: solid; }
+
+  /* SIMPLE INPUTS */
+  .input-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+  }
+
+  .input-group { display: flex; flex-direction: column; gap: 6px; }
+  .input-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--light-text);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .input-hint {
+    font-size: 0.7rem;
+    color: var(--dusty, #c9a090);
+    font-weight: 300;
+    margin-top: 2px;
+  }
+
+  .input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .input-wrap input {
+    width: 100%;
+    padding: 11px 40px 11px 14px;
+    border: 1.5px solid var(--blush);
+    border-radius: 10px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.9rem;
+    color: var(--text);
+    background: #fffaf7;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .input-wrap input:focus { border-color: var(--rose); }
+  .input-suffix {
+    position: absolute;
+    right: 12px;
+    font-size: 0.78rem;
+    color: var(--light-text);
+    pointer-events: none;
+  }
+
+  /* OVERHEAD */
+  .overhead-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+  }
+
+  /* RESULT */
+  .result-section {
+    background: linear-gradient(135deg, var(--deep), #7a3d35);
+    border-radius: 20px;
+    padding: 36px 32px;
+    margin-top: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .result-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40'%3E%3Ccircle cx='20' cy='20' r='1' fill='white' opacity='0.05'/%3E%3C/svg%3E");
+  }
+  .result-inner { position: relative; z-index: 1; }
+
+  .result-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    color: white;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .result-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .result-card {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 14px;
+    padding: 18px 16px;
+    text-align: center;
+  }
+  .result-card.highlight {
+    background: var(--gold);
+    border-color: var(--gold);
+  }
+  .result-card.green {
+    background: rgba(74,158,106,0.3);
+    border-color: rgba(74,158,106,0.4);
+  }
+
+  .result-label {
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.65);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .result-card.highlight .result-label { color: var(--deep); opacity: 0.7; }
+
+  .result-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: white;
+    line-height: 1;
+  }
+  .result-card.highlight .result-value { color: var(--deep); }
+
+  .result-breakdown {
+    background: rgba(255,255,255,0.07);
+    border-radius: 12px;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .breakdown-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+  }
+  .breakdown-label { color: rgba(255,255,255,0.65); }
+  .breakdown-value { color: white; font-weight: 600; }
+
+  /* MARKUP SLIDER */
+  .markup-section { margin-top: 20px; }
+  .markup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .markup-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--light-text);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .markup-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--rose);
+    font-weight: 600;
+  }
+
+  input[type="range"] {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--blush);
+    outline: none;
+    cursor: pointer;
+    -webkit-appearance: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--rose);
+    box-shadow: 0 2px 8px rgba(212,131,106,0.4);
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+  .markup-tips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  .markup-tip {
+    padding: 5px 12px;
+    border: 1px solid var(--blush);
+    border-radius: 20px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    color: var(--warm);
+    transition: all 0.2s;
+    background: white;
+  }
+  .markup-tip:hover { background: var(--blush); border-color: var(--rose); }
+
+  /* RESET BTN */
+  .btn-reset {
+    width: 100%;
+    padding: 14px;
+    background: none;
+    border: 1.5px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.6);
+    border-radius: 10px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    margin-top: 16px;
+    transition: all 0.2s;
+  }
+  .btn-reset:hover { border-color: rgba(255,255,255,0.4); color: white; }
+
+  /* TIPS */
+  .tips-box {
+    background: var(--light-green);
+    border: 1px solid #b8ddc8;
+    border-radius: 14px;
+    padding: 18px 20px;
+    margin-top: 20px;
+    display: flex;
+    gap: 12px;
+  }
+  .tips-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 2px; }
+  .tips-text { font-size: 0.83rem; color: #2d5e3a; line-height: 1.7; }
+  .tips-text strong { font-weight: 700; }
+
+  /* COL HEADER */
+  .col-headers {
+    display: grid;
+    grid-template-columns: 1fr 100px 80px 80px 36px;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .col-h {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--light-text);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* FOOTER */
+  .calc-footer {
+    text-align: center;
+    margin-top: 40px;
+    font-size: 0.82rem;
+    color: var(--light-text);
+  }
+  .calc-footer a { color: var(--rose); text-decoration: none; }
+  .calc-footer a:hover { text-decoration: underline; }
+
+  @media (max-width: 600px) {
+    .material-row {
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto auto;
+    }
+    .material-row input:first-child { grid-column: 1 / -1; }
+    .material-cost { grid-column: 1; }
+    .btn-remove { grid-column: 2; justify-self: end; }
+    .col-headers { display: none; }
+    .result-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-content">
+    <a href="index.html" class="header-back">← Вернуться на сайт</a>
+    <h1>Калькулятор <em>себестоимости</em></h1>
+    <p>Рассчитайте справедливую цену вашего изделия из полимерной глины 🌸</p>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- MATERIALS -->
+  <div class="calc-section">
+    <div class="section-header">
+      <span class="section-icon">🧱</span>
+      <div>
+        <div class="section-title">Материалы</div>
+        <div class="section-subtitle">Всё что вы потратили на изделие — глина, фурнитура, лак, краски</div>
+      </div>
+    </div>
+
+    <div class="col-headers">
+      <div class="col-h">Название</div>
+      <div class="col-h">Цена упак.</div>
+      <div class="col-h">Объём упак.</div>
+      <div class="col-h">Потрачено</div>
+      <div class="col-h"></div>
+    </div>
+
+    <div class="materials-list" id="materialsList"></div>
+    <button class="btn-add" onclick="addMaterial()">+ Добавить материал</button>
+  </div>
+
+  <!-- TIME -->
+  <div class="calc-section">
+    <div class="section-header">
+      <span class="section-icon">⏱️</span>
+      <div>
+        <div class="section-title">Время работы</div>
+        <div class="section-subtitle">Ваш труд — это тоже стоимость!</div>
+      </div>
+    </div>
+    <div class="input-grid">
+      <div class="input-group">
+        <div class="input-label">Время на изготовление</div>
+        <div class="input-wrap">
+          <input type="number" id="timeHours" value="1" min="0" step="0.5" oninput="calculate()">
+          <span class="input-suffix">ч</span>
+        </div>
+        <div class="input-hint">Сколько часов ушло на одно изделие</div>
+      </div>
+      <div class="input-group">
+        <div class="input-label">Ваша ставка</div>
+        <div class="input-wrap">
+          <input type="number" id="hourlyRate" value="200" min="0" oninput="calculate()">
+          <span class="input-suffix">₽/ч</span>
+        </div>
+        <div class="input-hint">Средняя ставка мастера — 150-500 ₽/ч</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OVERHEAD -->
+  <div class="calc-section">
+    <div class="section-header">
+      <span class="section-icon">💡</span>
+      <div>
+        <div class="section-title">Накладные расходы</div>
+        <div class="section-subtitle">Электричество, упаковка, доставка материалов и другие расходы</div>
+      </div>
+    </div>
+    <div class="overhead-grid">
+      <div class="input-group">
+        <div class="input-label">Электричество (духовка)</div>
+        <div class="input-wrap">
+          <input type="number" id="electricity" value="5" min="0" step="1" oninput="calculate()">
+          <span class="input-suffix">₽</span>
+        </div>
+        <div class="input-hint">Запекание ~45 мин ≈ 3-7 ₽</div>
+      </div>
+      <div class="input-group">
+        <div class="input-label">Упаковка</div>
+        <div class="input-wrap">
+          <input type="number" id="packaging" value="20" min="0" oninput="calculate()">
+          <span class="input-suffix">₽</span>
+        </div>
+        <div class="input-hint">Коробка, бумага, лента</div>
+      </div>
+      <div class="input-group">
+        <div class="input-label">Доставка материалов</div>
+        <div class="input-wrap">
+          <input type="number" id="delivery" value="10" min="0" oninput="calculate()">
+          <span class="input-suffix">₽</span>
+        </div>
+        <div class="input-hint">Доля доставки на 1 изделие</div>
+      </div>
+      <div class="input-group">
+        <div class="input-label">Комиссия площадки</div>
+        <div class="input-wrap">
+          <input type="number" id="commission" value="0" min="0" max="50" oninput="calculate()">
+          <span class="input-suffix">%</span>
+        </div>
+        <div class="input-hint">Ярмарка мастеров, WB и т.д.</div>
+      </div>
+      <div class="input-group">
+        <div class="input-label">Прочие расходы</div>
+        <div class="input-wrap">
+          <input type="number" id="other" value="0" min="0" oninput="calculate()">
+          <span class="input-suffix">₽</span>
+        </div>
+        <div class="input-hint">Реклама, инструменты и т.д.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MARKUP -->
+  <div class="calc-section">
+    <div class="section-header">
+      <span class="section-icon">📈</span>
+      <div>
+        <div class="section-title">Наценка (прибыль)</div>
+        <div class="section-subtitle">Минимум 100%, рекомендуется 140-150%</div>
+      </div>
+    </div>
+    <div class="markup-section">
+      <div class="markup-header">
+        <div class="markup-label">Ваша наценка</div>
+        <div class="markup-value" id="markupDisplay">100%</div>
+      </div>
+      <input type="range" id="markupSlider" min="0" max="300" value="100" step="10" oninput="updateMarkup()">
+      <div class="markup-tips">
+        <div class="markup-tip" onclick="setMarkup(50)">50% — минимум</div>
+        <div class="markup-tip" onclick="setMarkup(100)">100% — стандарт</div>
+        <div class="markup-tip" onclick="setMarkup(150)">150% — рекомендуем</div>
+        <div class="markup-tip" onclick="setMarkup(200)">200% — премиум</div>
+      </div>
+    </div>
+
+    <div class="tips-box" style="margin-top:20px;">
+      <span class="tips-icon">💡</span>
+      <div class="tips-text">
+        <strong>Совет:</strong> наценка 100% — это не чистая прибыль! В неё входят реклама, комиссии, ваше время на общение с клиентами, налоги. Многие опытные мастера ставят <strong>140-150%</strong> как минимум. Если изделие уникальное — смело 200%+.
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="result-section">
+    <div class="result-inner">
+      <div class="result-title">🎯 Результат расчёта</div>
+
+      <div class="result-grid">
+        <div class="result-card">
+          <div class="result-label">Материалы</div>
+          <div class="result-value" id="resMaterials">0 ₽</div>
+        </div>
+        <div class="result-card">
+          <div class="result-label">Труд</div>
+          <div class="result-value" id="resLabor">0 ₽</div>
+        </div>
+        <div class="result-card">
+          <div class="result-label">Накладные</div>
+          <div class="result-value" id="resOverhead">0 ₽</div>
+        </div>
+        <div class="result-card">
+          <div class="result-label">Себестоимость</div>
+          <div class="result-value" id="resCost">0 ₽</div>
+        </div>
+        <div class="result-card highlight">
+          <div class="result-label">Цена продажи</div>
+          <div class="result-value" id="resPrice">0 ₽</div>
+        </div>
+        <div class="result-card green">
+          <div class="result-label">Ваша прибыль</div>
+          <div class="result-value" id="resProfit">0 ₽</div>
+        </div>
+      </div>
+
+      <div class="result-breakdown">
+        <div class="breakdown-row">
+          <span class="breakdown-label">Себестоимость × (1 + наценка%)</span>
+          <span class="breakdown-value" id="resFormula">0 × 2.0 = 0 ₽</span>
+        </div>
+        <div class="breakdown-row">
+          <span class="breakdown-label">Минимальная цена (без прибыли)</span>
+          <span class="breakdown-value" id="resMin">0 ₽</span>
+        </div>
+        <div class="breakdown-row">
+          <span class="breakdown-label">Комиссия площадки</span>
+          <span class="breakdown-value" id="resCommission">0 ₽</span>
+        </div>
+      </div>
+
+      <button class="btn-reset" onclick="resetAll()">↺ Сбросить все данные</button>
+    </div>
+  </div>
+
+  <div class="calc-footer">
+    Калькулятор создан для мастеров проекта <a href="index.html">Милый уголок</a> 🌸<br>
+    <span style="font-size:0.75rem; opacity:0.7;">Автор: Дарья Гладышева · daria.s@list.ru</span>
+  </div>
+
+</div>
+
+<script>
+  // ── DATA ──
+  const DEFAULT_MATERIALS = [
+    { name: 'Полимерная глина', price: 280, volume: 56, used: 10, unit: 'г' },
+    { name: 'Лак финишный', price: 250, volume: 60, used: 2, unit: 'мл' },
+    { name: 'Фурнитура (швензы)', price: 120, volume: 10, used: 2, unit: 'шт' },
+  ];
+
+  let materials = JSON.parse(JSON.stringify(DEFAULT_MATERIALS));
+  let markup = 100;
+
+  // ── RENDER MATERIALS ──
+  function renderMaterials() {
+    const list = document.getElementById('materialsList');
+    list.innerHTML = '';
+    materials.forEach((m, i) => {
+      const cost = calcMaterialCost(m);
+      const row = document.createElement('div');
+      row.className = 'material-row';
+      row.innerHTML = `
+        <input type="text" placeholder="Название материала" value="${m.name}"
+          oninput="materials[${i}].name=this.value">
+        <input type="number" placeholder="Цена упак." value="${m.price}" min="0"
+          oninput="materials[${i}].price=+this.value; updateCost(${i})">
+        <input type="number" placeholder="Объём" value="${m.volume}" min="0.1" step="0.1"
+          oninput="materials[${i}].volume=+this.value; updateCost(${i})">
+        <input type="number" placeholder="Потрачено" value="${m.used}" min="0" step="0.1"
+          oninput="materials[${i}].used=+this.value; updateCost(${i})">
+        <button class="btn-remove" onclick="removeMaterial(${i})">✕</button>
+      `;
+      list.appendChild(row);
+    });
+    calculate();
+  }
+
+  function updateCost(i) {
+    calculate();
+  }
+
+  function calcMaterialCost(m) {
+    if (!m.volume || !m.price) return 0;
+    return (m.price / m.volume) * m.used;
+  }
+
+  function addMaterial() {
+    materials.push({ name: '', price: 0, volume: 100, used: 0, unit: 'г' });
+    renderMaterials();
+  }
+
+  function removeMaterial(i) {
+    materials.splice(i, 1);
+    renderMaterials();
+  }
+
+  // ── CALCULATE ──
+  function calculate() {
+    const matCost = materials.reduce((sum, m) => sum + calcMaterialCost(m), 0);
+    const hours = +document.getElementById('timeHours').value || 0;
+    const rate = +document.getElementById('hourlyRate').value || 0;
+    const labor = hours * rate;
+    const electricity = +document.getElementById('electricity').value || 0;
+    const packaging = +document.getElementById('packaging').value || 0;
+    const delivery = +document.getElementById('delivery').value || 0;
+    const other = +document.getElementById('other').value || 0;
+    const commissionPct = +document.getElementById('commission').value || 0;
+
+    const overhead = electricity + packaging + delivery + other;
+    const costBase = matCost + labor + overhead;
+    const commissionAmt = costBase * (commissionPct / 100);
+    const totalCost = costBase + commissionAmt;
+    const price = totalCost * (1 + markup / 100);
+    const profit = price - totalCost;
+
+    const fmt = v => Math.round(v) + ' ₽';
+
+    document.getElementById('resMaterials').textContent = fmt(matCost);
+    document.getElementById('resLabor').textContent = fmt(labor);
+    document.getElementById('resOverhead').textContent = fmt(overhead + commissionAmt);
+    document.getElementById('resCost').textContent = fmt(totalCost);
+    document.getElementById('resPrice').textContent = fmt(price);
+    document.getElementById('resProfit').textContent = fmt(profit);
+    document.getElementById('resMin').textContent = fmt(totalCost);
+    document.getElementById('resCommission').textContent = fmt(commissionAmt);
+    document.getElementById('resFormula').textContent =
+      `${Math.round(totalCost)} × ${(1 + markup/100).toFixed(1)} = ${fmt(price)}`;
+  }
+
+  // ── MARKUP ──
+  function updateMarkup() {
+    markup = +document.getElementById('markupSlider').value;
+    document.getElementById('markupDisplay').textContent = markup + '%';
+    calculate();
+  }
+
+  function setMarkup(val) {
+    markup = val;
+    document.getElementById('markupSlider').value = val;
+    document.getElementById('markupDisplay').textContent = val + '%';
+    calculate();
+  }
+
+  // ── RESET ──
+  function resetAll() {
+    materials = JSON.parse(JSON.stringify(DEFAULT_MATERIALS));
+    document.getElementById('timeHours').value = 1;
+    document.getElementById('hourlyRate').value = 200;
+    document.getElementById('electricity').value = 5;
+    document.getElementById('packaging').value = 20;
+    document.getElementById('delivery').value = 10;
+    document.getElementById('commission').value = 0;
+    document.getElementById('other').value = 0;
+    setMarkup(100);
+    renderMaterials();
+  }
+
+  // ── INIT ──
+  renderMaterials();
+</script>
+</body>
+</html>
